@@ -13,7 +13,7 @@ class FeedbackKitConfig {
   final int timeout;
 
   /// Default production base URL.
-  static const String defaultBaseUrl = 'https://feedbackkit.app/api/v1';
+  static const String defaultBaseUrl = 'https://feedbackkit.swiftly-workspace.com/api/v1';
 
   /// Default request timeout in milliseconds (30 seconds).
   static const int defaultTimeout = 30000;
