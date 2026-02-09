@@ -1,6 +1,6 @@
 name: feedbackkit_flutter
 description: Flutter SDK for FeedbackKit - A feedback collection platform for your apps
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter
 repository: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter
 issue_tracker: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter/issues
