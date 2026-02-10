@@ -81,7 +81,6 @@ SubmitFeedbackView(
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
 | `apiKey` | `String` | Yes | Your FeedbackKit API key |
-| `baseUrl` | `String` | No | Custom API URL (defaults to production) |
 | `userId` | `String` | No | Initial user ID for the session |
 | `theme` | `FeedbackKitTheme` | No | Custom theme configuration |
 
