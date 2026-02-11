@@ -1,3 +1,5 @@
+import '../i18n/feedbackkit_localizations.dart';
+
 /// Status of a feedback item.
 enum FeedbackStatus {
   pending,
@@ -45,21 +47,21 @@ enum FeedbackStatus {
     }
   }
 
-  /// Returns the display name for this status.
+  /// Returns the localized display name for this status.
   String get displayName {
     switch (this) {
       case FeedbackStatus.pending:
-        return 'Pending';
+        return FeedbackKitLocalizations.t('status.pending');
       case FeedbackStatus.approved:
-        return 'Approved';
+        return FeedbackKitLocalizations.t('status.approved');
       case FeedbackStatus.inProgress:
-        return 'In Progress';
+        return FeedbackKitLocalizations.t('status.inProgress');
       case FeedbackStatus.testflight:
-        return 'TestFlight';
+        return FeedbackKitLocalizations.t('status.testflight');
       case FeedbackStatus.completed:
-        return 'Completed';
+        return FeedbackKitLocalizations.t('status.completed');
       case FeedbackStatus.rejected:
-        return 'Rejected';
+        return FeedbackKitLocalizations.t('status.rejected');
     }
   }
 

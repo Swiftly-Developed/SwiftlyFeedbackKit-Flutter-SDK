@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../api/comments_api.dart';
+import '../i18n/feedbackkit_localizations.dart';
 import '../models/comment.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/vote_response.dart';
@@ -168,7 +169,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
 
             // Meta info
             Text(
-              'Submitted ${_formatDate(widget.feedback.createdAt)}',
+              '${FeedbackKitLocalizations.t('feedback.detail.submitted')} ${_formatDate(widget.feedback.createdAt)}',
               style: TextStyle(
                 color: theme.secondaryTextColor,
                 fontSize: 14,
@@ -178,7 +179,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
 
             // Comments section
             Text(
-              'Comments (${_comments?.length ?? widget.feedback.commentCount})',
+              '${FeedbackKitLocalizations.t('feedback.detail.comments')} (${_comments?.length ?? widget.feedback.commentCount})',
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 18,
@@ -239,7 +240,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
                     borderRadius: BorderRadius.circular(theme.borderRadius / 2),
                   ),
                   child: Text(
-                    _isSubmittingComment ? 'Sending...' : 'Add Comment',
+                    _isSubmittingComment ? FeedbackKitLocalizations.t('feedback.detail.comments.sending') : FeedbackKitLocalizations.t('feedback.detail.comments.add'),
                     style: const TextStyle(
                       color: Color(0xFFFFFFFF),
                       fontSize: 14,
@@ -260,7 +261,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
       return Padding(
         padding: EdgeInsets.all(theme.spacing * 2),
         child: Text(
-          'Loading comments...',
+          FeedbackKitLocalizations.t('feedback.detail.comments.loading'),
           style: TextStyle(
             color: theme.secondaryTextColor,
             fontSize: 14,
@@ -275,7 +276,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
         child: Column(
           children: [
             Text(
-              'Failed to load comments',
+              FeedbackKitLocalizations.t('feedback.detail.comments.error'),
               style: TextStyle(
                 color: theme.errorColor,
                 fontSize: 14,
@@ -285,7 +286,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
             GestureDetector(
               onTap: _loadComments,
               child: Text(
-                'Retry',
+                FeedbackKitLocalizations.t('feedback.list.error.retry'),
                 style: TextStyle(
                   color: theme.primaryColor,
                   fontSize: 14,
@@ -302,7 +303,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
       return Padding(
         padding: EdgeInsets.all(theme.spacing * 2),
         child: Text(
-          'No comments yet. Be the first to comment!',
+          FeedbackKitLocalizations.t('feedback.detail.comments.empty'),
           style: TextStyle(
             color: theme.secondaryTextColor,
             fontSize: 14,
@@ -336,7 +337,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
             Row(
               children: [
                 Text(
-                  comment.authorName ?? 'Anonymous',
+                  comment.authorName ?? FeedbackKitLocalizations.t('feedback.detail.anonymous'),
                   style: TextStyle(
                     color: theme.textColor,
                     fontSize: 14,
@@ -355,7 +356,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      'Team',
+                      FeedbackKitLocalizations.t('comment.author.team'),
                       style: TextStyle(
                         color: theme.primaryColor,
                         fontSize: 10,
@@ -394,17 +395,17 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
     final diff = now.difference(date);
 
     if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}y ago';
+      return '${(diff.inDays / 365).floor()}${FeedbackKitLocalizations.t('time.yearsAgo')}';
     } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}mo ago';
+      return '${(diff.inDays / 30).floor()}${FeedbackKitLocalizations.t('time.monthsAgo')}';
     } else if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
+      return '${diff.inDays}${FeedbackKitLocalizations.t('time.daysAgo')}';
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
+      return '${diff.inHours}${FeedbackKitLocalizations.t('time.hoursAgo')}';
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
+      return '${diff.inMinutes}${FeedbackKitLocalizations.t('time.minutesAgo')}';
     } else {
-      return 'Just now';
+      return FeedbackKitLocalizations.t('time.justNow');
     }
   }
 }

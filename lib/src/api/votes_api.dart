@@ -11,13 +11,23 @@ class VotesApi {
   ///
   /// [feedbackId] - The ID of the feedback to vote for.
   /// [notifyOnStatusChange] - Whether to receive email notifications on status changes.
+  /// [subscribeToMailingList] - Whether the user opts in to the mailing list.
+  /// [mailingListEmailTypes] - Email preference types (e.g. ["operational", "marketing"]). Defaults to both when null.
   Future<VoteResponse> vote(
     String feedbackId, {
     bool? notifyOnStatusChange,
+    bool? subscribeToMailingList,
+    List<String>? mailingListEmailTypes,
   }) async {
     final body = <String, dynamic>{};
     if (notifyOnStatusChange != null) {
       body['notify_on_status_change'] = notifyOnStatusChange;
+    }
+    if (subscribeToMailingList != null) {
+      body['subscribeToMailingList'] = subscribeToMailingList;
+    }
+    if (mailingListEmailTypes != null) {
+      body['mailingListEmailTypes'] = mailingListEmailTypes;
     }
     // Include userId in the request body
     if (_http.userId != null) {

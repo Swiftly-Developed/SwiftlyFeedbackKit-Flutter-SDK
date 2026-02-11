@@ -1,3 +1,5 @@
+import '../i18n/feedbackkit_localizations.dart';
+
 /// Category of a feedback item.
 enum FeedbackCategory {
   featureRequest,
@@ -35,17 +37,17 @@ enum FeedbackCategory {
     }
   }
 
-  /// Returns the display name for this category.
+  /// Returns the localized display name for this category.
   String get displayName {
     switch (this) {
       case FeedbackCategory.featureRequest:
-        return 'Feature Request';
+        return FeedbackKitLocalizations.t('category.featureRequest');
       case FeedbackCategory.bugReport:
-        return 'Bug Report';
+        return FeedbackKitLocalizations.t('category.bugReport');
       case FeedbackCategory.improvement:
-        return 'Improvement';
+        return FeedbackKitLocalizations.t('category.improvement');
       case FeedbackCategory.other:
-        return 'Other';
+        return FeedbackKitLocalizations.t('category.other');
     }
   }
 }

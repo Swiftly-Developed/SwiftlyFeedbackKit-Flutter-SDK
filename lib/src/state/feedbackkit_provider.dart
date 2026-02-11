@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../client/feedbackkit_client.dart';
+import '../i18n/feedbackkit_localizations.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'notifiers/feedback_list_notifier.dart';
 import 'notifiers/vote_notifier.dart';
@@ -19,6 +20,12 @@ class FeedbackKitProvider extends StatefulWidget {
   /// Theme for FeedbackKit widgets.
   final FeedbackKitTheme? theme;
 
+  /// Override locale for FeedbackKit strings (auto-detected by default).
+  final String? locale;
+
+  /// Override specific translation strings.
+  final Map<String, String>? translations;
+
   /// Child widget.
   final Widget child;
 
@@ -28,6 +35,8 @@ class FeedbackKitProvider extends StatefulWidget {
     this.baseUrl,
     this.userId,
     this.theme,
+    this.locale,
+    this.translations,
     required this.child,
   });
 
@@ -82,6 +91,14 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
     _voteNotifier = VoteNotifier(_client);
     _theme = widget.theme ?? const FeedbackKitTheme();
     _userId = widget.userId;
+
+    // Apply locale and translation overrides
+    if (widget.locale != null) {
+      FeedbackKitLocalizations.setLocale(widget.locale!);
+    }
+    if (widget.translations != null) {
+      FeedbackKitLocalizations.setOverrideStrings(widget.translations!);
+    }
 
     _loadStoredUserId();
   }

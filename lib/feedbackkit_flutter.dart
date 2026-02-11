@@ -23,6 +23,9 @@ export 'src/models/vote_response.dart';
 // Errors
 export 'src/errors/feedbackkit_error.dart';
 
+// Internationalization
+export 'src/i18n/feedbackkit_localizations.dart';
+
 // State Management
 export 'src/state/feedbackkit_provider.dart';
 export 'src/state/notifiers/feedback_list_notifier.dart';

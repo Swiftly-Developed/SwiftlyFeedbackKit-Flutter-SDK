@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../i18n/feedbackkit_localizations.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/vote_response.dart';
 import '../state/feedbackkit_provider.dart';
@@ -96,7 +97,7 @@ class _FeedbackListState extends State<FeedbackList> {
       child: Padding(
         padding: EdgeInsets.all(theme.spacing * 4),
         child: Text(
-          'Loading...',
+          FeedbackKitLocalizations.t('feedback.list.loading'),
           style: TextStyle(
             color: theme.secondaryTextColor,
             fontSize: 14,
@@ -114,7 +115,7 @@ class _FeedbackListState extends State<FeedbackList> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Failed to load feedback',
+              FeedbackKitLocalizations.t('feedback.list.error'),
               style: TextStyle(
                 color: theme.errorColor,
                 fontSize: 16,
@@ -142,8 +143,8 @@ class _FeedbackListState extends State<FeedbackList> {
                   color: theme.primaryColor,
                   borderRadius: BorderRadius.circular(theme.borderRadius / 2),
                 ),
-                child: const Text(
-                  'Retry',
+                child: Text(
+                  FeedbackKitLocalizations.t('feedback.list.error.retry'),
                   style: TextStyle(
                     color: Color(0xFFFFFFFF),
                     fontSize: 14,
@@ -166,7 +167,7 @@ class _FeedbackListState extends State<FeedbackList> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'No feedback yet',
+              FeedbackKitLocalizations.t('feedback.list.empty'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 16,
@@ -175,7 +176,7 @@ class _FeedbackListState extends State<FeedbackList> {
             ),
             SizedBox(height: theme.spacing),
             Text(
-              'Be the first to submit feedback!',
+              FeedbackKitLocalizations.t('feedback.list.empty.description'),
               style: TextStyle(
                 color: theme.secondaryTextColor,
                 fontSize: 14,

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../api/feedback_api.dart';
+import '../i18n/feedbackkit_localizations.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/feedback_category.dart';
 import '../state/feedbackkit_provider.dart';
@@ -38,16 +39,32 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
   final _emailController = TextEditingController();
   late FeedbackCategory _selectedCategory;
   bool _isSubmitting = false;
+  bool _subscribeToMailingList = false;
+  bool _operationalEmails = true;
+  bool _marketingEmails = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory ?? FeedbackCategory.featureRequest;
+    _emailController.addListener(_onEmailChanged);
+  }
+
+  void _onEmailChanged() {
+    // Rebuild when email transitions between empty and non-empty
+    setState(() {
+      if (_emailController.text.trim().isEmpty) {
+        _subscribeToMailingList = false;
+        _operationalEmails = true;
+        _marketingEmails = true;
+      }
+    });
   }
 
   @override
   void dispose() {
+    _emailController.removeListener(_onEmailChanged);
     _titleController.dispose();
     _descriptionController.dispose();
     _emailController.dispose();
@@ -61,14 +78,14 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
 
     if (title.isEmpty) {
       setState(() {
-        _error = 'Please enter a title';
+        _error = FeedbackKitLocalizations.t('feedback.form.title.error');
       });
       return;
     }
 
     if (description.isEmpty) {
       setState(() {
-        _error = 'Please enter a description';
+        _error = FeedbackKitLocalizations.t('feedback.form.description.error');
       });
       return;
     }
@@ -80,12 +97,24 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
 
     try {
       final context = FeedbackKitProvider.of(this.context);
+      List<String>? emailTypes;
+      if (_subscribeToMailingList && email.isNotEmpty) {
+        emailTypes = [
+          if (_operationalEmails) 'operational',
+          if (_marketingEmails) 'marketing',
+        ];
+        if (emailTypes.isEmpty) emailTypes = null;
+      }
+
       final feedback = await context.client.feedback.create(
         CreateFeedbackRequest(
           title: title,
           description: description,
           category: _selectedCategory,
           email: email.isNotEmpty ? email : null,
+          subscribeToMailingList:
+              email.isNotEmpty ? _subscribeToMailingList : null,
+          mailingListEmailTypes: emailTypes,
         ),
       );
 
@@ -117,7 +146,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
           children: [
             // Title
             Text(
-              'Submit Feedback',
+              FeedbackKitLocalizations.t('feedback.submit.title'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 24,
@@ -128,7 +157,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
 
             // Category selector
             Text(
-              'Category',
+              FeedbackKitLocalizations.t('feedback.form.category'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 14,
@@ -141,7 +170,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
 
             // Title input
             Text(
-              'Title',
+              FeedbackKitLocalizations.t('feedback.form.title'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 14,
@@ -152,14 +181,14 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
             _buildTextField(
               theme,
               controller: _titleController,
-              placeholder: 'Brief summary of your feedback',
+              placeholder: FeedbackKitLocalizations.t('feedback.form.title.placeholder'),
               maxLines: 1,
             ),
             SizedBox(height: theme.spacing * 2),
 
             // Description input
             Text(
-              'Description',
+              FeedbackKitLocalizations.t('feedback.form.description'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 14,
@@ -170,14 +199,14 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
             _buildTextField(
               theme,
               controller: _descriptionController,
-              placeholder: 'Provide more details about your feedback',
+              placeholder: FeedbackKitLocalizations.t('feedback.form.description.placeholder'),
               maxLines: 5,
             ),
             SizedBox(height: theme.spacing * 2),
 
             // Email input (optional)
             Text(
-              'Email (optional)',
+              FeedbackKitLocalizations.t('feedback.form.email'),
               style: TextStyle(
                 color: theme.textColor,
                 fontSize: 14,
@@ -186,7 +215,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
             ),
             SizedBox(height: theme.spacing / 2),
             Text(
-              'Get notified when there are updates',
+              FeedbackKitLocalizations.t('feedback.form.email.description'),
               style: TextStyle(
                 color: theme.secondaryTextColor,
                 fontSize: 12,
@@ -199,6 +228,84 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
               placeholder: 'your@email.com',
               maxLines: 1,
             ),
+
+            // Mailing list opt-in (visible only when email is non-empty)
+            if (_emailController.text.trim().isNotEmpty) ...[
+              SizedBox(height: theme.spacing * 1.5),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _subscribeToMailingList = !_subscribeToMailingList;
+                  });
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: _subscribeToMailingList
+                            ? theme.primaryColor
+                            : theme.cardBackgroundColor,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: _subscribeToMailingList
+                              ? theme.primaryColor
+                              : theme.borderColor,
+                        ),
+                      ),
+                      child: _subscribeToMailingList
+                          ? const Center(
+                              child: Text(
+                                '\u2713',
+                                style: TextStyle(
+                                  color: Color(0xFFFFFFFF),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: theme.spacing),
+                    Expanded(
+                      child: Text(
+                        FeedbackKitLocalizations.t('feedback.form.mailingList'),
+                        style: TextStyle(
+                          color: theme.textColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Email type sub-checkboxes (progressive disclosure)
+              if (_subscribeToMailingList) ...[
+                SizedBox(height: theme.spacing),
+                Padding(
+                  padding: EdgeInsets.only(left: 20.0 + theme.spacing),
+                  child: Column(
+                    children: [
+                      _buildSubCheckbox(
+                        label: FeedbackKitLocalizations.t('feedback.form.mailingList.operational'),
+                        value: _operationalEmails,
+                        onChanged: (v) => setState(() => _operationalEmails = v),
+                        theme: theme,
+                      ),
+                      SizedBox(height: theme.spacing * 0.5),
+                      _buildSubCheckbox(
+                        label: FeedbackKitLocalizations.t('feedback.form.mailingList.marketing'),
+                        value: _marketingEmails,
+                        onChanged: (v) => setState(() => _marketingEmails = v),
+                        theme: theme,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
             SizedBox(height: theme.spacing * 3),
 
             // Error message
@@ -236,7 +343,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
                           border: Border.all(color: theme.borderColor),
                         ),
                         child: Text(
-                          'Cancel',
+                          FeedbackKitLocalizations.t('button.cancel'),
                           style: TextStyle(
                             color: theme.textColor,
                             fontSize: 16,
@@ -262,7 +369,7 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
                           borderRadius: BorderRadius.circular(theme.borderRadius / 2),
                         ),
                         child: Text(
-                          _isSubmitting ? 'Submitting...' : 'Submit',
+                          _isSubmitting ? FeedbackKitLocalizations.t('feedback.submit.submitting') : FeedbackKitLocalizations.t('feedback.submit.button'),
                           style: const TextStyle(
                             color: Color(0xFFFFFFFF),
                             fontSize: 16,
@@ -278,6 +385,54 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubCheckbox({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required FeedbackKitTheme theme,
+  }) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: Row(
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              color: value ? theme.primaryColor : theme.cardBackgroundColor,
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(
+                color: value ? theme.primaryColor : theme.borderColor,
+              ),
+            ),
+            child: value
+                ? const Center(
+                    child: Text(
+                      '\u2713',
+                      style: TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+          SizedBox(width: theme.spacing * 0.75),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: theme.secondaryTextColor,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

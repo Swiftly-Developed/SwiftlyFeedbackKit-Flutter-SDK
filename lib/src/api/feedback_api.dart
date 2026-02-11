@@ -17,11 +17,19 @@ class CreateFeedbackRequest {
   /// Optional email for notifications.
   final String? email;
 
+  /// Whether the user opts in to the mailing list.
+  final bool? subscribeToMailingList;
+
+  /// Email preference types (e.g. ["operational", "marketing"]). Defaults to both when null.
+  final List<String>? mailingListEmailTypes;
+
   const CreateFeedbackRequest({
     required this.title,
     required this.description,
     required this.category,
     this.email,
+    this.subscribeToMailingList,
+    this.mailingListEmailTypes,
   });
 
   Map<String, dynamic> toJson() {
@@ -30,6 +38,10 @@ class CreateFeedbackRequest {
       'description': description,
       'category': category.toJson(),
       if (email != null) 'email': email,
+      if (subscribeToMailingList != null)
+        'subscribeToMailingList': subscribeToMailingList,
+      if (mailingListEmailTypes != null)
+        'mailingListEmailTypes': mailingListEmailTypes,
     };
   }
 }
