@@ -36,6 +36,9 @@ class FeedbackItem {
   /// When this feedback was last updated.
   final DateTime updatedAt;
 
+  /// Whether this feedback is hidden over the free-tier limit (only visible to creator).
+  final bool? isHiddenOverLimit;
+
   const FeedbackItem({
     required this.id,
     required this.title,
@@ -48,6 +51,7 @@ class FeedbackItem {
     this.userId,
     required this.createdAt,
     required this.updatedAt,
+    this.isHiddenOverLimit,
   });
 
   /// Creates a [FeedbackItem] from a JSON map.
@@ -65,6 +69,7 @@ class FeedbackItem {
       userId: json['user_id'] as String? ?? json['userId'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String? ?? json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String? ?? json['updatedAt'] as String),
+      isHiddenOverLimit: json['is_hidden_over_limit'] as bool? ?? json['isHiddenOverLimit'] as bool?,
     );
   }
 
@@ -82,6 +87,7 @@ class FeedbackItem {
       if (userId != null) 'user_id': userId,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      if (isHiddenOverLimit != null) 'is_hidden_over_limit': isHiddenOverLimit,
     };
   }
 
@@ -98,6 +104,7 @@ class FeedbackItem {
     String? userId,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isHiddenOverLimit,
   }) {
     return FeedbackItem(
       id: id ?? this.id,
@@ -111,6 +118,7 @@ class FeedbackItem {
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isHiddenOverLimit: isHiddenOverLimit ?? this.isHiddenOverLimit,
     );
   }
 
@@ -126,7 +134,8 @@ class FeedbackItem {
         other.voteCount == voteCount &&
         other.hasVoted == hasVoted &&
         other.commentCount == commentCount &&
-        other.userId == userId;
+        other.userId == userId &&
+        other.isHiddenOverLimit == isHiddenOverLimit;
   }
 
   @override
@@ -141,6 +150,7 @@ class FeedbackItem {
       hasVoted,
       commentCount,
       userId,
+      isHiddenOverLimit,
     );
   }
 
