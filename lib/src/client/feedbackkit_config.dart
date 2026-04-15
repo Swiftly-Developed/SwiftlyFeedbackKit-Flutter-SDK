@@ -13,7 +13,7 @@ class FeedbackKitConfig {
   final int timeout;
 
   /// Default production base URL.
-  static const String defaultBaseUrl = 'https://getfeedbackkit.com/api/v1';
+  static const String defaultBaseUrl = 'https://api.prod.getfeedbackkit.com/api/v1';
 
   /// Default request timeout in milliseconds (30 seconds).
   static const int defaultTimeout = 30000;
