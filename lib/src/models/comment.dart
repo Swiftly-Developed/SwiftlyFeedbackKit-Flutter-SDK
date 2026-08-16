@@ -4,7 +4,12 @@ class Comment {
   final String id;
 
   /// ID of the feedback this comment belongs to.
-  final String feedbackId;
+  ///
+  /// Nullable: the server's comment payload does not carry a `feedback_id` key at
+  /// all (comments are fetched per feedback, so the association is the request's).
+  /// Until 2026-08-15 this was non-nullable and silently resolved to `''` on every
+  /// decode (QA-UNIT04-COMMENTS -13, fixed by QA-UNIT10-SDK-PARITY).
+  final String? feedbackId;
 
   /// Content of the comment.
   final String content;
@@ -23,7 +28,7 @@ class Comment {
 
   const Comment({
     required this.id,
-    required this.feedbackId,
+    this.feedbackId,
     required this.content,
     this.userId,
     this.authorName,
@@ -35,14 +40,17 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       id: json['id'] as String,
-      feedbackId: json['feedback_id'] as String? ??
-          json['feedbackId'] as String? ??
-          '',
+      feedbackId:
+          json['feedback_id'] as String? ?? json['feedbackId'] as String?,
       content: json['content'] as String,
       userId: json['user_id'] as String? ?? json['userId'] as String?,
       authorName:
           json['author_name'] as String? ?? json['authorName'] as String?,
-      isTeamMember: json['is_team_member'] as bool? ??
+      // The server's wire key is is_admin (CommentResponseDTO.isAdmin under the global
+      // .convertToSnakeCase strategy). This read is_team_member until 2026-08-15, so the
+      // admin badge silently never rendered (QA-UNIT04-COMMENTS -13).
+      isTeamMember: json['is_admin'] as bool? ??
+          json['is_team_member'] as bool? ??
           json['isTeamMember'] as bool? ??
           false,
       createdAt: DateTime.parse(
@@ -55,7 +63,7 @@ class Comment {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'feedback_id': feedbackId,
+      if (feedbackId != null) 'feedback_id': feedbackId,
       'content': content,
       if (userId != null) 'user_id': userId,
       if (authorName != null) 'author_name': authorName,

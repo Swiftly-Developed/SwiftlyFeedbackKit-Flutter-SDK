@@ -1,4 +1,5 @@
 import '../i18n/feedbackkit_localizations.dart';
+import 'unknown_enum_value_exception.dart';
 
 /// Status of a feedback item.
 enum FeedbackStatus {
@@ -10,6 +11,13 @@ enum FeedbackStatus {
   rejected;
 
   /// Creates a [FeedbackStatus] from a JSON string value.
+  ///
+  /// Throws [UnknownEnumValueException] for a token this SDK version does not
+  /// know. Until 2026-08-15 the default arm instead coerced every unknown token
+  /// to [pending] — the sentinel mapping `AGENTS.md` forbids (finding F6): a
+  /// seventh server status rendered as "Pending" and stayed votable against a
+  /// status the server refuses. List decodes tolerate the throw per element and
+  /// drop only that row (see `FeedbackApi.list`).
   static FeedbackStatus fromJson(String value) {
     switch (value) {
       case 'pending':
@@ -25,7 +33,7 @@ enum FeedbackStatus {
       case 'rejected':
         return FeedbackStatus.rejected;
       default:
-        return FeedbackStatus.pending;
+        throw UnknownEnumValueException('FeedbackStatus', value);
     }
   }
 

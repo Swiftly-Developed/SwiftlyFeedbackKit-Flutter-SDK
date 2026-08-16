@@ -2,6 +2,7 @@ import '../http/http_client.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/feedback_category.dart';
 import '../models/feedback_status.dart';
+import '../models/unknown_enum_value_exception.dart';
 
 /// Request object for creating feedback.
 class CreateFeedbackRequest {
@@ -68,6 +69,28 @@ class ListFeedbackOptions {
   });
 }
 
+/// Decodes a JSON array of feedback rows with the tolerant element-drop
+/// contract (`AGENTS.md` line 82): a row whose `status` or `category` carries a
+/// token this SDK version does not know — an [UnknownEnumValueException] — is
+/// dropped, and every other row survives in order. A genuinely malformed row
+/// (missing required key, type mismatch on a known field) still throws, because
+/// swallowing it would turn a decode regression into a silently short list.
+///
+/// This is the single definition of the wrapper: `FeedbackApi.list` routes
+/// through it, and `QA-UNIT10-SDK-PARITY`'s `-06` asserts it against the
+/// server-generated tolerance corpus.
+List<FeedbackItem> decodeFeedbackListTolerantly(List<dynamic> data) {
+  final items = <FeedbackItem>[];
+  for (final item in data) {
+    try {
+      items.add(FeedbackItem.fromJson(item as Map<String, dynamic>));
+    } on UnknownEnumValueException {
+      // Dropped: the row is from a newer server vocabulary.
+    }
+  }
+  return items;
+}
+
 /// API client for feedback operations.
 class FeedbackApi {
   final FeedbackKitHttpClient _http;
@@ -98,9 +121,7 @@ class FeedbackApi {
       params: params.isEmpty ? null : params,
       decoder: (data) {
         if (data is List) {
-          return data
-              .map((item) => FeedbackItem.fromJson(item as Map<String, dynamic>))
-              .toList();
+          return decodeFeedbackListTolerantly(data);
         }
         return <FeedbackItem>[];
       },

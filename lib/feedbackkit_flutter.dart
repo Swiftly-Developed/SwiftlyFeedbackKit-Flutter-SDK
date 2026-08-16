@@ -18,6 +18,7 @@ export 'src/models/feedback_category.dart';
 export 'src/models/feedback_status.dart';
 export 'src/models/sdk_user.dart';
 export 'src/models/tracked_event.dart';
+export 'src/models/unknown_enum_value_exception.dart';
 export 'src/models/vote_response.dart';
 
 // Errors
