@@ -29,8 +29,10 @@ const Map<String, String> ruTranslations = {
   'feedback.form.email.description': 'Получать уведомления при обновлениях',
   'feedback.form.email.placeholder': 'your@email.com',
   'feedback.form.mailingList': 'Подписаться на рассылку обновлений продукта',
-  'feedback.form.mailingList.operational': 'Операционные письма (обновления статуса, аккаунт)',
-  'feedback.form.mailingList.marketing': 'Маркетинговые письма (рассылки, акции)',
+  'feedback.form.mailingList.operational':
+      'Операционные письма (обновления статуса, аккаунт)',
+  'feedback.form.mailingList.marketing':
+      'Маркетинговые письма (рассылки, акции)',
   'button.cancel': 'Отмена',
   'button.submit': 'Отправить',
   'button.send': 'Отправить',
@@ -57,4 +59,6 @@ const Map<String, String> ruTranslations = {
   'time.hoursAgo': 'ч. назад',
   'time.minutesAgo': 'мин. назад',
   'time.justNow': 'Только что',
+  'feedback.card.comment.one': '1 комментарий',
+  'feedback.card.comment.other': '{count} комментариев',
 };

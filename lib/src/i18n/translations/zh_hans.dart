@@ -57,4 +57,6 @@ const Map<String, String> zhHansTranslations = {
   'time.hoursAgo': '小时前',
   'time.minutesAgo': '分钟前',
   'time.justNow': '刚刚',
+  'feedback.card.comment.one': '1 条评论',
+  'feedback.card.comment.other': '{count} 条评论',
 };

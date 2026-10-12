@@ -30,7 +30,12 @@ class VoteNotifier extends ChangeNotifier {
   /// in progress or fails.
   Future<VoteResponse?> vote(
     String feedbackId, {
+    bool? notifyStatusChange,
+    @Deprecated(
+      'Use notifyStatusChange. The server reads notify_status_change.',
+    )
     bool? notifyOnStatusChange,
+    String? email,
   }) async {
     if (_votingInProgress.contains(feedbackId)) return null;
 
@@ -41,7 +46,8 @@ class VoteNotifier extends ChangeNotifier {
     try {
       final response = await _client.votes.vote(
         feedbackId,
-        notifyOnStatusChange: notifyOnStatusChange,
+        notifyStatusChange: notifyStatusChange ?? notifyOnStatusChange,
+        email: email,
       );
       return response;
     } on FeedbackKitError catch (e) {
@@ -80,12 +86,21 @@ class VoteNotifier extends ChangeNotifier {
   Future<VoteResponse?> toggle(
     String feedbackId, {
     required bool hasVoted,
+    bool? notifyStatusChange,
+    @Deprecated(
+      'Use notifyStatusChange. The server reads notify_status_change.',
+    )
     bool? notifyOnStatusChange,
+    String? email,
   }) async {
     if (hasVoted) {
       return unvote(feedbackId);
     } else {
-      return vote(feedbackId, notifyOnStatusChange: notifyOnStatusChange);
+      return vote(
+        feedbackId,
+        notifyStatusChange: notifyStatusChange ?? notifyOnStatusChange,
+        email: email,
+      );
     }
   }
 }

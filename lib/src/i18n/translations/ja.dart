@@ -57,4 +57,6 @@ const Map<String, String> jaTranslations = {
   'time.hoursAgo': '時間前',
   'time.minutesAgo': '分前',
   'time.justNow': 'たった今',
+  'feedback.card.comment.one': '1件のコメント',
+  'feedback.card.comment.other': '{count}件のコメント',
 };

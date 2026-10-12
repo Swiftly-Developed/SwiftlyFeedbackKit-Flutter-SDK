@@ -57,4 +57,6 @@ const Map<String, String> koTranslations = {
   'time.hoursAgo': '시간 전',
   'time.minutesAgo': '분 전',
   'time.justNow': '방금',
+  'feedback.card.comment.one': '댓글 1개',
+  'feedback.card.comment.other': '댓글 {count}개',
 };

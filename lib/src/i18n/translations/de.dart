@@ -22,15 +22,20 @@ const Map<String, String> deTranslations = {
   'feedback.form.title.placeholder': 'Kurze Zusammenfassung Ihres Feedbacks',
   'feedback.form.title.error': 'Bitte geben Sie einen Titel ein',
   'feedback.form.description': 'Beschreibung',
-  'feedback.form.description.placeholder': 'Geben Sie weitere Details zu Ihrem Feedback an',
+  'feedback.form.description.placeholder':
+      'Geben Sie weitere Details zu Ihrem Feedback an',
   'feedback.form.description.error': 'Bitte geben Sie eine Beschreibung ein',
   'feedback.form.category': 'Kategorie',
   'feedback.form.email': 'E-Mail (optional)',
-  'feedback.form.email.description': 'Benachrichtigung bei Aktualisierungen erhalten',
+  'feedback.form.email.description':
+      'Benachrichtigung bei Aktualisierungen erhalten',
   'feedback.form.email.placeholder': 'your@email.com',
-  'feedback.form.mailingList': 'Unseren Newsletter fur Produktupdates abonnieren',
-  'feedback.form.mailingList.operational': 'Betriebliche E-Mails (Statusupdates, Konto)',
-  'feedback.form.mailingList.marketing': 'Marketing-E-Mails (Newsletter, Aktionen)',
+  'feedback.form.mailingList':
+      'Unseren Newsletter fur Produktupdates abonnieren',
+  'feedback.form.mailingList.operational':
+      'Betriebliche E-Mails (Statusupdates, Konto)',
+  'feedback.form.mailingList.marketing':
+      'Marketing-E-Mails (Newsletter, Aktionen)',
   'button.cancel': 'Abbrechen',
   'button.submit': 'Senden',
   'button.send': 'Senden',
@@ -57,4 +62,6 @@ const Map<String, String> deTranslations = {
   'time.hoursAgo': 'Std.',
   'time.minutesAgo': 'Min.',
   'time.justNow': 'Gerade eben',
+  'feedback.card.comment.one': '1 Kommentar',
+  'feedback.card.comment.other': '{count} Kommentare',
 };

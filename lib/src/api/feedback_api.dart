@@ -2,6 +2,7 @@ import '../http/http_client.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/feedback_category.dart';
 import '../models/feedback_status.dart';
+import '../models/unknown_enum_value_exception.dart';
 
 /// Request object for creating feedback.
 class CreateFeedbackRequest {
@@ -37,11 +38,11 @@ class CreateFeedbackRequest {
       'title': title,
       'description': description,
       'category': category.toJson(),
-      if (email != null) 'email': email,
+      if (email != null) 'user_email': email,
       if (subscribeToMailingList != null)
-        'subscribeToMailingList': subscribeToMailingList,
+        'subscribe_to_mailing_list': subscribeToMailingList,
       if (mailingListEmailTypes != null)
-        'mailingListEmailTypes': mailingListEmailTypes,
+        'mailing_list_email_types': mailingListEmailTypes,
     };
   }
 }
@@ -66,6 +67,28 @@ class ListFeedbackOptions {
     this.page,
     this.perPage,
   });
+}
+
+/// Decodes a JSON array of feedback rows with the tolerant element-drop
+/// contract (`AGENTS.md` line 82): a row whose `status` or `category` carries a
+/// token this SDK version does not know — an [UnknownEnumValueException] — is
+/// dropped, and every other row survives in order. A genuinely malformed row
+/// (missing required key, type mismatch on a known field) still throws, because
+/// swallowing it would turn a decode regression into a silently short list.
+///
+/// This is the single definition of the wrapper: `FeedbackApi.list` routes
+/// through it, and `QA-UNIT10-SDK-PARITY`'s `-06` asserts it against the
+/// server-generated tolerance corpus.
+List<FeedbackItem> decodeFeedbackListTolerantly(List<dynamic> data) {
+  final items = <FeedbackItem>[];
+  for (final item in data) {
+    try {
+      items.add(FeedbackItem.fromJson(item as Map<String, dynamic>));
+    } on UnknownEnumValueException {
+      // Dropped: the row is from a newer server vocabulary.
+    }
+  }
+  return items;
 }
 
 /// API client for feedback operations.
@@ -98,9 +121,7 @@ class FeedbackApi {
       params: params.isEmpty ? null : params,
       decoder: (data) {
         if (data is List) {
-          return data
-              .map((item) => FeedbackItem.fromJson(item as Map<String, dynamic>))
-              .toList();
+          return decodeFeedbackListTolerantly(data);
         }
         return <FeedbackItem>[];
       },
@@ -118,9 +139,9 @@ class FeedbackApi {
   /// Creates a new feedback item.
   Future<FeedbackItem> create(CreateFeedbackRequest request) async {
     final body = request.toJson();
-    // Include userId from the HTTP client if available
-    if (_http.userId != null) {
-      body['userId'] = _http.userId;
+    final userId = _http.userId?.trim();
+    if (userId != null && userId.isNotEmpty) {
+      body['user_id'] = userId;
     }
     return _http.post<FeedbackItem>(
       '/feedbacks',

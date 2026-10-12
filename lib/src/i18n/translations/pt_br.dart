@@ -11,7 +11,8 @@ const Map<String, String> ptBRTranslations = {
   'feedback.submit.submitting': 'Enviando...',
   'feedback.detail.title': 'Detalhes',
   'feedback.detail.comments': 'Comentarios',
-  'feedback.detail.comments.empty': 'Nenhum comentario ainda. Seja o primeiro a comentar!',
+  'feedback.detail.comments.empty':
+      'Nenhum comentario ainda. Seja o primeiro a comentar!',
   'feedback.detail.comments.add': 'Adicionar comentario',
   'feedback.detail.comments.sending': 'Enviando...',
   'feedback.detail.comments.loading': 'Carregando comentarios...',
@@ -22,15 +23,20 @@ const Map<String, String> ptBRTranslations = {
   'feedback.form.title.placeholder': 'Breve resumo do seu feedback',
   'feedback.form.title.error': 'Por favor insira um titulo',
   'feedback.form.description': 'Descricao',
-  'feedback.form.description.placeholder': 'Forneca mais detalhes sobre seu feedback',
+  'feedback.form.description.placeholder':
+      'Forneca mais detalhes sobre seu feedback',
   'feedback.form.description.error': 'Por favor insira uma descricao',
   'feedback.form.category': 'Categoria',
   'feedback.form.email': 'E-mail (opcional)',
-  'feedback.form.email.description': 'Receba notificacoes quando houver atualizacoes',
+  'feedback.form.email.description':
+      'Receba notificacoes quando houver atualizacoes',
   'feedback.form.email.placeholder': 'your@email.com',
-  'feedback.form.mailingList': 'Inscrever-se na nossa lista de e-mails para atualizacoes do produto',
-  'feedback.form.mailingList.operational': 'E-mails operacionais (atualizações de status, conta)',
-  'feedback.form.mailingList.marketing': 'E-mails de marketing (newsletters, promoções)',
+  'feedback.form.mailingList':
+      'Inscrever-se na nossa lista de e-mails para atualizacoes do produto',
+  'feedback.form.mailingList.operational':
+      'E-mails operacionais (atualizações de status, conta)',
+  'feedback.form.mailingList.marketing':
+      'E-mails de marketing (newsletters, promoções)',
   'button.cancel': 'Cancelar',
   'button.submit': 'Enviar',
   'button.send': 'Enviar',
@@ -57,4 +63,6 @@ const Map<String, String> ptBRTranslations = {
   'time.hoursAgo': 'h atras',
   'time.minutesAgo': 'min atras',
   'time.justNow': 'Agora mesmo',
+  'feedback.card.comment.one': '1 comentário',
+  'feedback.card.comment.other': '{count} comentários',
 };

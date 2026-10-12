@@ -1,4 +1,5 @@
 import '../i18n/feedbackkit_localizations.dart';
+import 'unknown_enum_value_exception.dart';
 
 /// Category of a feedback item.
 enum FeedbackCategory {
@@ -8,6 +9,12 @@ enum FeedbackCategory {
   other;
 
   /// Creates a [FeedbackCategory] from a JSON string value.
+  ///
+  /// Throws [UnknownEnumValueException] for a token this SDK version does not
+  /// know. Until 2026-08-15 the default arm instead coerced every unknown token
+  /// to [other] — the same sentinel mapping as `FeedbackStatus` carried (finding
+  /// F6, two enums wide). List decodes tolerate the throw per element and drop
+  /// only that row (see `FeedbackApi.list`).
   static FeedbackCategory fromJson(String value) {
     switch (value) {
       case 'feature_request':
@@ -19,7 +26,7 @@ enum FeedbackCategory {
       case 'other':
         return FeedbackCategory.other;
       default:
-        return FeedbackCategory.other;
+        throw UnknownEnumValueException('FeedbackCategory', value);
     }
   }
 

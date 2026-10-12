@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
 
+import '../i18n/feedbackkit_localizations.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/vote_response.dart';
 import '../state/feedbackkit_provider.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'category_badge.dart';
+import 'feedbackkit_direction.dart';
 import 'status_badge.dart';
 import 'vote_button.dart';
 
@@ -32,105 +34,103 @@ class FeedbackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveTheme =
-        theme ?? FeedbackKitProvider.maybeOf(context)?.theme ?? const FeedbackKitTheme();
+    final effectiveTheme = theme ??
+        FeedbackKitProvider.maybeOf(context)?.theme ??
+        const FeedbackKitTheme();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(effectiveTheme.spacing * 2),
-        decoration: BoxDecoration(
-          color: effectiveTheme.cardBackgroundColor,
-          borderRadius: BorderRadius.circular(effectiveTheme.borderRadius),
-          border: Border.all(color: effectiveTheme.borderColor),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Badges row
-            Row(
+    return FeedbackKitDirection(
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        button: onTap != null,
+        enabled: onTap != null,
+        label: feedback.title,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.all(effectiveTheme.spacing * 2),
+            decoration: BoxDecoration(
+              color: effectiveTheme.cardBackgroundColor,
+              borderRadius: BorderRadius.circular(effectiveTheme.borderRadius),
+              border: Border.all(color: effectiveTheme.borderColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StatusBadge(status: feedback.status, theme: effectiveTheme),
-                SizedBox(width: effectiveTheme.spacing),
-                CategoryBadge(category: feedback.category, theme: effectiveTheme),
-                const Spacer(),
-                VoteButton(
-                  feedback: feedback,
-                  size: VoteButtonSize.small,
-                  onVoteChange: onVoteChange,
-                  theme: effectiveTheme,
+                // Badges row
+                Row(
+                  children: [
+                    StatusBadge(status: feedback.status, theme: effectiveTheme),
+                    SizedBox(width: effectiveTheme.spacing),
+                    CategoryBadge(
+                      category: feedback.category,
+                      theme: effectiveTheme,
+                    ),
+                    const Spacer(),
+                    VoteButton(
+                      feedback: feedback,
+                      size: VoteButtonSize.small,
+                      onVoteChange: onVoteChange,
+                      theme: effectiveTheme,
+                    ),
+                  ],
+                ),
+                SizedBox(height: effectiveTheme.spacing * 1.5),
+
+                // Title
+                ExcludeSemantics(
+                  child: Text(
+                    feedback.title,
+                    style: TextStyle(
+                      color: effectiveTheme.textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(height: effectiveTheme.spacing),
+
+                // Description
+                Text(
+                  feedback.description,
+                  style: TextStyle(
+                    color: effectiveTheme.secondaryTextColor,
+                    fontSize: 14,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: effectiveTheme.spacing * 1.5),
+
+                // Meta info
+                Row(
+                  children: [
+                    Text(
+                      FeedbackKitLocalizations.commentCountLabel(
+                        feedback.commentCount,
+                      ),
+                      style: TextStyle(
+                        color: effectiveTheme.secondaryTextColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      FeedbackKitLocalizations.relativeTime(feedback.createdAt),
+                      style: TextStyle(
+                        color: effectiveTheme.secondaryTextColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(height: effectiveTheme.spacing * 1.5),
-
-            // Title
-            Text(
-              feedback.title,
-              style: TextStyle(
-                color: effectiveTheme.textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: effectiveTheme.spacing),
-
-            // Description
-            Text(
-              feedback.description,
-              style: TextStyle(
-                color: effectiveTheme.secondaryTextColor,
-                fontSize: 14,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: effectiveTheme.spacing * 1.5),
-
-            // Meta info
-            Row(
-              children: [
-                Text(
-                  '${feedback.commentCount} comment${feedback.commentCount == 1 ? '' : 's'}',
-                  style: TextStyle(
-                    color: effectiveTheme.secondaryTextColor,
-                    fontSize: 12,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  _formatDate(feedback.createdAt),
-                  style: TextStyle(
-                    color: effectiveTheme.secondaryTextColor,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}y ago';
-    } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}mo ago';
-    } else if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
   }
 }

@@ -7,6 +7,8 @@ import '../state/feedbackkit_provider.dart';
 import '../state/notifiers/feedback_list_notifier.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'feedback_card.dart';
+import 'feedbackkit_direction.dart';
+import 'feedbackkit_pressable.dart';
 
 /// A scrollable list of feedback items.
 class FeedbackList extends StatefulWidget {
@@ -47,14 +49,23 @@ class FeedbackList extends StatefulWidget {
 }
 
 class _FeedbackListState extends State<FeedbackList> {
+  bool _didAutoLoad = false;
+
   @override
-  void initState() {
-    super.initState();
-    if (widget.autoLoad) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadFeedback();
-      });
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scheduleAutoLoad();
+  }
+
+  void _scheduleAutoLoad() {
+    if (!widget.autoLoad || _didAutoLoad) return;
+    final kit = FeedbackKitProvider.of(context);
+    if (!kit.isInitialized) return;
+    _didAutoLoad = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadFeedback();
+    });
   }
 
   void _loadFeedback() {
@@ -67,28 +78,30 @@ class _FeedbackListState extends State<FeedbackList> {
     final providerContext = FeedbackKitProvider.of(context);
     final theme = widget.theme ?? providerContext.theme;
 
-    return ListenableBuilder(
-      listenable: providerContext.feedbackList,
-      builder: (context, _) {
-        final notifier = providerContext.feedbackList;
+    return FeedbackKitDirection(
+      child: ListenableBuilder(
+        listenable: providerContext.feedbackList,
+        builder: (context, _) {
+          final notifier = providerContext.feedbackList;
 
-        switch (notifier.state) {
-          case FeedbackListState.initial:
-          case FeedbackListState.loading:
-            return widget.loadingBuilder?.call(context) ??
-                _buildLoading(theme);
+          switch (notifier.state) {
+            case FeedbackListState.initial:
+            case FeedbackListState.loading:
+              return widget.loadingBuilder?.call(context) ??
+                  _buildLoading(theme);
 
-          case FeedbackListState.error:
-            return widget.errorBuilder?.call(context, notifier.error!) ??
-                _buildError(theme, notifier.error!);
+            case FeedbackListState.error:
+              return widget.errorBuilder?.call(context, notifier.error!) ??
+                  _buildError(theme, notifier.error!);
 
-          case FeedbackListState.loaded:
-            if (notifier.feedbackItems.isEmpty) {
-              return widget.emptyBuilder?.call(context) ?? _buildEmpty(theme);
-            }
-            return _buildList(theme, notifier.feedbackItems);
-        }
-      },
+            case FeedbackListState.loaded:
+              if (notifier.feedbackItems.isEmpty) {
+                return widget.emptyBuilder?.call(context) ?? _buildEmpty(theme);
+              }
+              return _buildList(theme, notifier.feedbackItems);
+          }
+        },
+      ),
     );
   }
 
@@ -132,8 +145,9 @@ class _FeedbackListState extends State<FeedbackList> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: theme.spacing * 2),
-            GestureDetector(
+            FeedbackKitPressable(
               onTap: _loadFeedback,
+              label: FeedbackKitLocalizations.t('feedback.list.error.retry'),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: theme.spacing * 2,
@@ -145,7 +159,7 @@ class _FeedbackListState extends State<FeedbackList> {
                 ),
                 child: Text(
                   FeedbackKitLocalizations.t('feedback.list.error.retry'),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFFFFF),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

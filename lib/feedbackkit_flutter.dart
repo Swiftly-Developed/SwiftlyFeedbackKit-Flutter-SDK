@@ -9,6 +9,12 @@ export 'src/client/feedbackkit_config.dart';
 export 'src/api/comments_api.dart' show CreateCommentRequest;
 export 'src/api/feedback_api.dart'
     show CreateFeedbackRequest, ListFeedbackOptions;
+export 'src/api/metrics_api.dart'
+    show
+        MetricBreakdownOptions,
+        MetricEventsOptions,
+        MetricSummaryOptions,
+        MetricTimeseriesOptions;
 export 'src/api/users_api.dart' show RegisterUserRequest;
 
 // Models
@@ -16,8 +22,11 @@ export 'src/models/comment.dart';
 export 'src/models/feedback.dart' show FeedbackItem;
 export 'src/models/feedback_category.dart';
 export 'src/models/feedback_status.dart';
+export 'src/models/metrics.dart';
+export 'src/models/predefined_event_names.dart';
 export 'src/models/sdk_user.dart';
 export 'src/models/tracked_event.dart';
+export 'src/models/unknown_enum_value_exception.dart';
 export 'src/models/vote_response.dart';
 
 // Errors
@@ -28,6 +37,7 @@ export 'src/i18n/feedbackkit_localizations.dart';
 
 // State Management
 export 'src/state/feedbackkit_provider.dart';
+export 'src/storage/feedbackkit_storage.dart';
 export 'src/state/notifiers/feedback_list_notifier.dart';
 export 'src/state/notifiers/vote_notifier.dart';
 

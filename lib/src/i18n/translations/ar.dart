@@ -29,7 +29,8 @@ const Map<String, String> arTranslations = {
   'feedback.form.email.description': 'تلقي اشعارات عند وجود تحديثات',
   'feedback.form.email.placeholder': 'your@email.com',
   'feedback.form.mailingList': 'الاشتراك في قائمتنا البريدية لتحديثات المنتج',
-  'feedback.form.mailingList.operational': 'رسائل تشغيلية (تحديثات الحالة، الحساب)',
+  'feedback.form.mailingList.operational':
+      'رسائل تشغيلية (تحديثات الحالة، الحساب)',
   'feedback.form.mailingList.marketing': 'رسائل تسويقية (نشرات إخبارية، عروض)',
   'button.cancel': 'الغاء',
   'button.submit': 'ارسال',
@@ -57,4 +58,6 @@ const Map<String, String> arTranslations = {
   'time.hoursAgo': 'ساعة',
   'time.minutesAgo': 'دقيقة',
   'time.justNow': 'الان',
+  'feedback.card.comment.one': 'تعليق واحد',
+  'feedback.card.comment.other': '{count} تعليقات',
 };

@@ -53,10 +53,7 @@ class FeedbackKitLocalizations {
   /// 2. Built-in translation for current locale
   /// 3. English fallback
   static String t(String key) {
-    return _overrides[key] ??
-        _translations[_locale]?[key] ??
-        _en[key] ??
-        key;
+    return _overrides[key] ?? _translations[_locale]?[key] ?? _en[key] ?? key;
   }
 
   /// Set the current locale.
@@ -67,9 +64,42 @@ class FeedbackKitLocalizations {
   /// Get the current locale.
   static String get locale => _locale;
 
+  /// Layout direction for the active locale.
+  ///
+  /// Arabic is right to left. Every other catalog shipped with the SDK is
+  /// left to right. A language tag such as `ar-SA` follows its language.
+  static ui.TextDirection get textDirection {
+    final language = _locale.split(RegExp('[-_]')).first.toLowerCase();
+    return language == 'ar' ? ui.TextDirection.rtl : ui.TextDirection.ltr;
+  }
+
+  /// Relative age of [date], using the active catalog.
+  ///
+  /// [now] is the clock. Tests pass a fixed value.
+  static String relativeTime(DateTime date, {DateTime? now}) {
+    final diff = (now ?? DateTime.now()).difference(date);
+    if (diff.inDays > 365) {
+      return '${(diff.inDays / 365).floor()}${t('time.yearsAgo')}';
+    } else if (diff.inDays > 30) {
+      return '${(diff.inDays / 30).floor()}${t('time.monthsAgo')}';
+    } else if (diff.inDays > 0) {
+      return '${diff.inDays}${t('time.daysAgo')}';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours}${t('time.hoursAgo')}';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes}${t('time.minutesAgo')}';
+    }
+    return t('time.justNow');
+  }
+
+  /// Localized comment count for a feedback card.
+  static String commentCountLabel(int count) {
+    if (count == 1) return t('feedback.card.comment.one');
+    return t('feedback.card.comment.other').replaceAll('{count}', '$count');
+  }
+
   /// Register custom translations for a locale.
-  static void registerTranslations(
-      String locale, Map<String, String> strings) {
+  static void registerTranslations(String locale, Map<String, String> strings) {
     _translations[locale] = {
       ...?_translations[locale],
       ...strings,
@@ -194,5 +224,8 @@ class FeedbackKitLocalizations {
     'time.hoursAgo': 'h ago',
     'time.minutesAgo': 'm ago',
     'time.justNow': 'Just now',
+
+    'feedback.card.comment.one': '1 comment',
+    'feedback.card.comment.other': '{count} comments',
   };
 }

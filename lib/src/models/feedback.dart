@@ -30,6 +30,9 @@ class FeedbackItem {
   /// ID of the user who submitted this feedback.
   final String? userId;
 
+  /// Email the submitter attached, when the server stored one.
+  final String? userEmail;
+
   /// When this feedback was created.
   final DateTime createdAt;
 
@@ -49,6 +52,7 @@ class FeedbackItem {
     required this.hasVoted,
     required this.commentCount,
     this.userId,
+    this.userEmail,
     required this.createdAt,
     required this.updatedAt,
     this.isHiddenOverLimit,
@@ -63,13 +67,20 @@ class FeedbackItem {
       status: FeedbackStatus.fromJson(json['status'] as String),
       category: FeedbackCategory.fromJson(json['category'] as String),
       voteCount: json['vote_count'] as int? ?? json['voteCount'] as int? ?? 0,
-      hasVoted: json['has_voted'] as bool? ?? json['hasVoted'] as bool? ?? false,
+      hasVoted:
+          json['has_voted'] as bool? ?? json['hasVoted'] as bool? ?? false,
       commentCount:
           json['comment_count'] as int? ?? json['commentCount'] as int? ?? 0,
       userId: json['user_id'] as String? ?? json['userId'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String? ?? json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String? ?? json['updatedAt'] as String),
-      isHiddenOverLimit: json['is_hidden_over_limit'] as bool? ?? json['isHiddenOverLimit'] as bool?,
+      userEmail: json['user_email'] as String? ?? json['userEmail'] as String?,
+      createdAt: DateTime.parse(
+        json['created_at'] as String? ?? json['createdAt'] as String,
+      ),
+      updatedAt: DateTime.parse(
+        json['updated_at'] as String? ?? json['updatedAt'] as String,
+      ),
+      isHiddenOverLimit: json['is_hidden_over_limit'] as bool? ??
+          json['isHiddenOverLimit'] as bool?,
     );
   }
 
@@ -85,6 +96,7 @@ class FeedbackItem {
       'has_voted': hasVoted,
       'comment_count': commentCount,
       if (userId != null) 'user_id': userId,
+      if (userEmail != null) 'user_email': userEmail,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       if (isHiddenOverLimit != null) 'is_hidden_over_limit': isHiddenOverLimit,
@@ -102,6 +114,7 @@ class FeedbackItem {
     bool? hasVoted,
     int? commentCount,
     String? userId,
+    String? userEmail,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isHiddenOverLimit,
@@ -116,6 +129,7 @@ class FeedbackItem {
       hasVoted: hasVoted ?? this.hasVoted,
       commentCount: commentCount ?? this.commentCount,
       userId: userId ?? this.userId,
+      userEmail: userEmail ?? this.userEmail,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isHiddenOverLimit: isHiddenOverLimit ?? this.isHiddenOverLimit,
@@ -135,6 +149,7 @@ class FeedbackItem {
         other.hasVoted == hasVoted &&
         other.commentCount == commentCount &&
         other.userId == userId &&
+        other.userEmail == userEmail &&
         other.isHiddenOverLimit == isHiddenOverLimit;
   }
 
@@ -150,6 +165,7 @@ class FeedbackItem {
       hasVoted,
       commentCount,
       userId,
+      userEmail,
       isHiddenOverLimit,
     );
   }

@@ -6,13 +6,21 @@ class CreateCommentRequest {
   /// Content of the comment.
   final String content;
 
+  /// Identifier of the commenting user.
+  ///
+  /// When this is omitted, [CommentsApi.create] sends the user id configured on
+  /// the client. The API reads `userId` from the JSON body.
+  final String? userId;
+
   const CreateCommentRequest({
     required this.content,
+    this.userId,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'content': content,
+      if (userId != null) 'userId': userId,
     };
   }
 }
@@ -40,9 +48,15 @@ class CommentsApi {
 
   /// Creates a new comment on a feedback item.
   Future<Comment> create(String feedbackId, CreateCommentRequest request) async {
+    final body = request.toJson();
+    // Flutter 1.2.0 sent only `content`. The API requires `userId` in the body;
+    // the header alone is not enough for a client that can include it.
+    if (body['userId'] == null && _http.userId != null) {
+      body['userId'] = _http.userId;
+    }
     return _http.post<Comment>(
       '/feedbacks/$feedbackId/comments',
-      body: request.toJson(),
+      body: body,
       decoder: (data) => Comment.fromJson(data as Map<String, dynamic>),
     );
   }

@@ -11,7 +11,8 @@ const Map<String, String> itTranslations = {
   'feedback.submit.submitting': 'Invio in corso...',
   'feedback.detail.title': 'Dettagli',
   'feedback.detail.comments': 'Commenti',
-  'feedback.detail.comments.empty': 'Nessun commento ancora. Sii il primo a commentare!',
+  'feedback.detail.comments.empty':
+      'Nessun commento ancora. Sii il primo a commentare!',
   'feedback.detail.comments.add': 'Aggiungi commento',
   'feedback.detail.comments.sending': 'Invio...',
   'feedback.detail.comments.loading': 'Caricamento commenti...',
@@ -22,15 +23,20 @@ const Map<String, String> itTranslations = {
   'feedback.form.title.placeholder': 'Breve riepilogo del tuo feedback',
   'feedback.form.title.error': 'Inserisci un titolo',
   'feedback.form.description': 'Descrizione',
-  'feedback.form.description.placeholder': 'Fornisci maggiori dettagli sul tuo feedback',
+  'feedback.form.description.placeholder':
+      'Fornisci maggiori dettagli sul tuo feedback',
   'feedback.form.description.error': 'Inserisci una descrizione',
   'feedback.form.category': 'Categoria',
   'feedback.form.email': 'Email (facoltativo)',
-  'feedback.form.email.description': 'Ricevi notifiche quando ci sono aggiornamenti',
+  'feedback.form.email.description':
+      'Ricevi notifiche quando ci sono aggiornamenti',
   'feedback.form.email.placeholder': 'your@email.com',
-  'feedback.form.mailingList': 'Iscriviti alla nostra mailing list per aggiornamenti sul prodotto',
-  'feedback.form.mailingList.operational': 'E-mail operative (aggiornamenti di stato, account)',
-  'feedback.form.mailingList.marketing': 'E-mail marketing (newsletter, promozioni)',
+  'feedback.form.mailingList':
+      'Iscriviti alla nostra mailing list per aggiornamenti sul prodotto',
+  'feedback.form.mailingList.operational':
+      'E-mail operative (aggiornamenti di stato, account)',
+  'feedback.form.mailingList.marketing':
+      'E-mail marketing (newsletter, promozioni)',
   'button.cancel': 'Annulla',
   'button.submit': 'Invia',
   'button.send': 'Invia',
@@ -57,4 +63,6 @@ const Map<String, String> itTranslations = {
   'time.hoursAgo': 'h fa',
   'time.minutesAgo': 'min fa',
   'time.justNow': 'Proprio ora',
+  'feedback.card.comment.one': '1 commento',
+  'feedback.card.comment.other': '{count} commenti',
 };

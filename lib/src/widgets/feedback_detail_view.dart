@@ -8,6 +8,8 @@ import '../models/vote_response.dart';
 import '../state/feedbackkit_provider.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'category_badge.dart';
+import 'feedbackkit_direction.dart';
+import 'feedbackkit_pressable.dart';
 import 'status_badge.dart';
 import 'vote_button.dart';
 
@@ -38,6 +40,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
   bool _isLoadingComments = true;
   Object? _commentsError;
   final _commentController = TextEditingController();
+  final _commentFocusNode = FocusNode();
   bool _isSubmittingComment = false;
 
   @override
@@ -49,6 +52,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
   @override
   void dispose() {
     _commentController.dispose();
+    _commentFocusNode.dispose();
     super.dispose();
   }
 
@@ -113,88 +117,93 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
         FeedbackKitProvider.maybeOf(context)?.theme ??
         const FeedbackKitTheme();
 
-    return Container(
-      color: theme.backgroundColor,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.spacing * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with badges
-            Row(
-              children: [
-                StatusBadge(status: widget.feedback.status, theme: theme),
-                SizedBox(width: theme.spacing),
-                CategoryBadge(category: widget.feedback.category, theme: theme),
-                const Spacer(),
-                VoteButton(
-                  feedback: widget.feedback,
-                  onVoteChange: widget.onVoteChange,
-                  theme: theme,
-                ),
-              ],
-            ),
-            SizedBox(height: theme.spacing * 2),
-
-            // Title
-            Text(
-              widget.feedback.title,
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+    return FeedbackKitDirection(
+      child: Container(
+        color: theme.backgroundColor,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(theme.spacing * 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with badges
+              Row(
+                children: [
+                  StatusBadge(status: widget.feedback.status, theme: theme),
+                  SizedBox(width: theme.spacing),
+                  CategoryBadge(
+                    category: widget.feedback.category,
+                    theme: theme,
+                  ),
+                  const Spacer(),
+                  VoteButton(
+                    feedback: widget.feedback,
+                    onVoteChange: widget.onVoteChange,
+                    theme: theme,
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: theme.spacing * 2),
+              SizedBox(height: theme.spacing * 2),
 
-            // Description
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(theme.spacing * 2),
-              decoration: BoxDecoration(
-                color: theme.cardBackgroundColor,
-                borderRadius: BorderRadius.circular(theme.borderRadius),
-                border: Border.all(color: theme.borderColor),
-              ),
-              child: Text(
-                widget.feedback.description,
+              // Title
+              Text(
+                widget.feedback.title,
                 style: TextStyle(
                   color: theme.textColor,
-                  fontSize: 16,
-                  height: 1.5,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-            SizedBox(height: theme.spacing * 2),
+              SizedBox(height: theme.spacing * 2),
 
-            // Meta info
-            Text(
-              '${FeedbackKitLocalizations.t('feedback.detail.submitted')} ${_formatDate(widget.feedback.createdAt)}',
-              style: TextStyle(
-                color: theme.secondaryTextColor,
-                fontSize: 14,
+              // Description
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(theme.spacing * 2),
+                decoration: BoxDecoration(
+                  color: theme.cardBackgroundColor,
+                  borderRadius: BorderRadius.circular(theme.borderRadius),
+                  border: Border.all(color: theme.borderColor),
+                ),
+                child: Text(
+                  widget.feedback.description,
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: theme.spacing * 3),
+              SizedBox(height: theme.spacing * 2),
 
-            // Comments section
-            Text(
-              '${FeedbackKitLocalizations.t('feedback.detail.comments')} (${_comments?.length ?? widget.feedback.commentCount})',
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+              // Meta info
+              Text(
+                '${FeedbackKitLocalizations.t('feedback.detail.submitted')} ${FeedbackKitLocalizations.relativeTime(widget.feedback.createdAt)}',
+                style: TextStyle(
+                  color: theme.secondaryTextColor,
+                  fontSize: 14,
+                ),
               ),
-            ),
-            SizedBox(height: theme.spacing * 2),
+              SizedBox(height: theme.spacing * 3),
 
-            // Comment input
-            _buildCommentInput(theme),
-            SizedBox(height: theme.spacing * 2),
+              // Comments section
+              Text(
+                '${FeedbackKitLocalizations.t('feedback.detail.comments')} (${_comments?.length ?? widget.feedback.commentCount})',
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: theme.spacing * 2),
 
-            // Comments list
-            _buildComments(theme),
-          ],
+              // Comment input
+              _buildCommentInput(theme),
+              SizedBox(height: theme.spacing * 2),
+
+              // Comments list
+              _buildComments(theme),
+            ],
+          ),
         ),
       ),
     );
@@ -213,7 +222,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
         children: [
           EditableText(
             controller: _commentController,
-            focusNode: FocusNode(),
+            focusNode: _commentFocusNode,
             style: TextStyle(
               color: theme.textColor,
               fontSize: 14,
@@ -224,9 +233,14 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
           ),
           SizedBox(height: theme.spacing),
           Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
+            alignment: AlignmentDirectional.centerEnd,
+            child: FeedbackKitPressable(
               onTap: _isSubmittingComment ? null : _submitComment,
+              label: FeedbackKitLocalizations.t(
+                _isSubmittingComment
+                    ? 'feedback.detail.comments.sending'
+                    : 'feedback.detail.comments.add',
+              ),
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 150),
                 opacity: _isSubmittingComment ? 0.5 : 1.0,
@@ -240,7 +254,11 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
                     borderRadius: BorderRadius.circular(theme.borderRadius / 2),
                   ),
                   child: Text(
-                    _isSubmittingComment ? FeedbackKitLocalizations.t('feedback.detail.comments.sending') : FeedbackKitLocalizations.t('feedback.detail.comments.add'),
+                    FeedbackKitLocalizations.t(
+                      _isSubmittingComment
+                          ? 'feedback.detail.comments.sending'
+                          : 'feedback.detail.comments.add',
+                    ),
                     style: const TextStyle(
                       color: Color(0xFFFFFFFF),
                       fontSize: 14,
@@ -283,8 +301,9 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
               ),
             ),
             SizedBox(height: theme.spacing),
-            GestureDetector(
+            FeedbackKitPressable(
               onTap: _loadComments,
+              label: FeedbackKitLocalizations.t('feedback.list.error.retry'),
               child: Text(
                 FeedbackKitLocalizations.t('feedback.list.error.retry'),
                 style: TextStyle(
@@ -313,7 +332,8 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
     }
 
     return Column(
-      children: _comments!.map((comment) => _buildComment(theme, comment)).toList(),
+      children:
+          _comments!.map((comment) => _buildComment(theme, comment)).toList(),
     );
   }
 
@@ -337,7 +357,8 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
             Row(
               children: [
                 Text(
-                  comment.authorName ?? FeedbackKitLocalizations.t('feedback.detail.anonymous'),
+                  comment.authorName ??
+                      FeedbackKitLocalizations.t('feedback.detail.anonymous'),
                   style: TextStyle(
                     color: theme.textColor,
                     fontSize: 14,
@@ -367,7 +388,7 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
                 ],
                 const Spacer(),
                 Text(
-                  _formatDate(comment.createdAt),
+                  FeedbackKitLocalizations.relativeTime(comment.createdAt),
                   style: TextStyle(
                     color: theme.secondaryTextColor,
                     fontSize: 12,
@@ -388,24 +409,5 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}${FeedbackKitLocalizations.t('time.yearsAgo')}';
-    } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}${FeedbackKitLocalizations.t('time.monthsAgo')}';
-    } else if (diff.inDays > 0) {
-      return '${diff.inDays}${FeedbackKitLocalizations.t('time.daysAgo')}';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours}${FeedbackKitLocalizations.t('time.hoursAgo')}';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}${FeedbackKitLocalizations.t('time.minutesAgo')}';
-    } else {
-      return FeedbackKitLocalizations.t('time.justNow');
-    }
   }
 }

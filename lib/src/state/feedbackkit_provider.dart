@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 
 import '../client/feedbackkit_client.dart';
+import '../client/feedbackkit_config.dart';
 import '../i18n/feedbackkit_localizations.dart';
+import '../storage/feedbackkit_storage.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'notifiers/feedback_list_notifier.dart';
 import 'notifiers/vote_notifier.dart';
@@ -15,7 +17,14 @@ class FeedbackKitProvider extends StatefulWidget {
   final String? baseUrl;
 
   /// Initial user ID.
+  ///
+  /// When this is set it wins over any id already in storage, and it is
+  /// written to storage. When it is omitted, the stored id is used, or a
+  /// `local_` id is created.
   final String? userId;
+
+  /// Storage for the persisted user id. Defaults to shared preferences.
+  final FeedbackKitStorage? storage;
 
   /// Theme for FeedbackKit widgets.
   final FeedbackKitTheme? theme;
@@ -34,6 +43,7 @@ class FeedbackKitProvider extends StatefulWidget {
     required this.apiKey,
     this.baseUrl,
     this.userId,
+    this.storage,
     this.theme,
     this.locale,
     this.translations,
@@ -81,10 +91,13 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
   }
 
   void _initClient() {
-    _client = FeedbackKit.configure(
-      apiKey: widget.apiKey,
-      baseUrl: widget.baseUrl,
-      userId: widget.userId,
+    _client = FeedbackKit(
+      config: FeedbackKitConfig(
+        apiKey: widget.apiKey,
+        baseUrl: widget.baseUrl ?? FeedbackKitConfig.defaultBaseUrl,
+        userId: widget.userId,
+      ),
+      storage: widget.storage,
     );
 
     _feedbackListNotifier = FeedbackListNotifier(_client);
@@ -104,10 +117,10 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
   }
 
   Future<void> _loadStoredUserId() async {
-    final storedUserId = await _client.loadUserId();
+    final userId = await _client.resolveUserId();
     if (mounted) {
       setState(() {
-        _userId = storedUserId ?? widget.userId;
+        _userId = userId;
         _isInitialized = true;
       });
     }
