@@ -12,7 +12,7 @@ class FeedbackKitExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FeedbackKitProvider(
       // Replace with your API key from feedbackkit.app
-      apiKey: 'A9BEBA14-12D0-4BBC-82C3-33340CD8CCC6',
+      apiKey: 'your-api-key-here',
       // Use local server for development
       baseUrl: 'http://localhost:8080/api/v1',
       // Optional: Set a user ID for the session
