@@ -49,7 +49,7 @@ void main() {
       wireSpellings.forEach((status, spelling) {
         expect(status.toJson(), spelling, reason: '$status serialises wrongly');
         expect(FeedbackStatus.fromJson(spelling), status,
-            reason: '"$spelling" does not parse back to $status');
+            reason: '"$spelling" does not parse back to $status',);
       });
       // Non-vacuity: the table covers the whole enum, and a seventh case would not be in it.
       expect(wireSpellings.length, FeedbackStatus.values.length);

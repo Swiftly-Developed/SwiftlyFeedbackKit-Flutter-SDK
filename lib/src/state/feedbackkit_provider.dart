@@ -1,7 +1,10 @@
 import 'package:flutter/widgets.dart';
 
 import '../client/feedbackkit_client.dart';
+import '../client/feedbackkit_config.dart';
 import '../i18n/feedbackkit_localizations.dart';
+import '../models/feedback_list_style.dart';
+import '../storage/feedbackkit_storage.dart';
 import '../theme/feedbackkit_theme.dart';
 import 'notifiers/feedback_list_notifier.dart';
 import 'notifiers/vote_notifier.dart';
@@ -15,7 +18,14 @@ class FeedbackKitProvider extends StatefulWidget {
   final String? baseUrl;
 
   /// Initial user ID.
+  ///
+  /// When this is set it wins over any id already in storage, and it is
+  /// written to storage. When it is omitted, the stored id is used, or a
+  /// `local_` id is created.
   final String? userId;
+
+  /// Storage for the persisted user id. Defaults to shared preferences.
+  final FeedbackKitStorage? storage;
 
   /// Theme for FeedbackKit widgets.
   final FeedbackKitTheme? theme;
@@ -26,6 +36,11 @@ class FeedbackKitProvider extends StatefulWidget {
   /// Override specific translation strings.
   final Map<String, String>? translations;
 
+  /// The look of every [FeedbackList] under this provider that does not set
+  /// its own. Showcase by default; choose [FeedbackListStyle.classic] to keep
+  /// the 1.x list.
+  final FeedbackListStyle listStyle;
+
   /// Child widget.
   final Widget child;
 
@@ -34,9 +49,11 @@ class FeedbackKitProvider extends StatefulWidget {
     required this.apiKey,
     this.baseUrl,
     this.userId,
+    this.storage,
     this.theme,
     this.locale,
     this.translations,
+    this.listStyle = FeedbackListStyle.showcase,
     required this.child,
   });
 
@@ -81,10 +98,13 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
   }
 
   void _initClient() {
-    _client = FeedbackKit.configure(
-      apiKey: widget.apiKey,
-      baseUrl: widget.baseUrl,
-      userId: widget.userId,
+    _client = FeedbackKit(
+      config: FeedbackKitConfig(
+        apiKey: widget.apiKey,
+        baseUrl: widget.baseUrl ?? FeedbackKitConfig.defaultBaseUrl,
+        userId: widget.userId,
+      ),
+      storage: widget.storage,
     );
 
     _feedbackListNotifier = FeedbackListNotifier(_client);
@@ -104,10 +124,10 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
   }
 
   Future<void> _loadStoredUserId() async {
-    final storedUserId = await _client.loadUserId();
+    final userId = await _client.resolveUserId();
     if (mounted) {
       setState(() {
-        _userId = storedUserId ?? widget.userId;
+        _userId = userId;
         _isInitialized = true;
       });
     }
@@ -167,6 +187,7 @@ class _FeedbackKitProviderState extends State<FeedbackKitProvider> {
         userId: _userId,
         isInitialized: _isInitialized,
         setUserId: _setUserId,
+        listStyle: widget.listStyle,
       ),
       child: widget.child,
     );
@@ -196,6 +217,9 @@ class FeedbackKitContext {
   /// Function to update the user ID.
   final Future<void> Function(String) setUserId;
 
+  /// The provider's default [FeedbackList] look.
+  final FeedbackListStyle listStyle;
+
   const FeedbackKitContext({
     required this.client,
     required this.feedbackList,
@@ -204,6 +228,7 @@ class FeedbackKitContext {
     required this.userId,
     required this.isInitialized,
     required this.setUserId,
+    this.listStyle = FeedbackListStyle.showcase,
   });
 }
 
@@ -219,6 +244,7 @@ class _FeedbackKitInheritedWidget extends InheritedWidget {
   bool updateShouldNotify(_FeedbackKitInheritedWidget oldWidget) {
     return context.userId != oldWidget.context.userId ||
         context.theme != oldWidget.context.theme ||
-        context.isInitialized != oldWidget.context.isInitialized;
+        context.isInitialized != oldWidget.context.isInitialized ||
+        context.listStyle != oldWidget.context.listStyle;
   }
 }

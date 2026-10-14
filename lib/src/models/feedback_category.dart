@@ -57,4 +57,19 @@ enum FeedbackCategory {
         return FeedbackKitLocalizations.t('category.other');
     }
   }
+
+  /// Localized name for the set of items in this category, such as
+  /// "Bug Reports". Used where a filter names what the list shows.
+  String get pluralDisplayName {
+    switch (this) {
+      case FeedbackCategory.featureRequest:
+        return FeedbackKitLocalizations.t('category.plural.featureRequest');
+      case FeedbackCategory.bugReport:
+        return FeedbackKitLocalizations.t('category.plural.bugReport');
+      case FeedbackCategory.improvement:
+        return FeedbackKitLocalizations.t('category.plural.improvement');
+      case FeedbackCategory.other:
+        return FeedbackKitLocalizations.t('category.plural.other');
+    }
+  }
 }

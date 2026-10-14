@@ -63,11 +63,11 @@ void main() {
       const colors = CategoryColors();
 
       expect(colors.forCategory(FeedbackCategory.featureRequest),
-          colors.featureRequest);
+          colors.featureRequest,);
       expect(
-          colors.forCategory(FeedbackCategory.bugReport), colors.bugReport);
+          colors.forCategory(FeedbackCategory.bugReport), colors.bugReport,);
       expect(colors.forCategory(FeedbackCategory.improvement),
-          colors.improvement);
+          colors.improvement,);
       expect(colors.forCategory(FeedbackCategory.other), colors.other);
     });
 

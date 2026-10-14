@@ -16,22 +16,62 @@ class TrackedEvent {
   });
 
   /// Creates a [TrackedEvent] from a JSON map.
+  ///
+  /// The server sends `event_name` and `created_at`. `name` and `timestamp`
+  /// are accepted so a map this SDK used to build still decodes.
   factory TrackedEvent.fromJson(Map<String, dynamic> json) {
-    final timestampStr = json['timestamp'] as String?;
+    final name = json['event_name'] as String? ?? json['name'] as String?;
+    if (name == null) {
+      throw const FormatException('TrackedEvent requires event_name.');
+    }
+    final timestampStr = json['created_at'] as String? ??
+        json['createdAt'] as String? ??
+        json['timestamp'] as String?;
     return TrackedEvent(
-      name: json['name'] as String,
-      properties: json['properties'] as Map<String, dynamic>?,
+      name: name,
+      properties: _readProperties(json['properties']),
       timestamp: timestampStr != null ? DateTime.parse(timestampStr) : null,
     );
   }
 
-  /// Converts this event to a JSON map.
+  /// Converts this event to the JSON the track route accepts.
+  ///
+  /// Keys are `event_name` and `properties`. `user_id` is added by the events
+  /// API because it comes from the client, not the event.
+  /// Numeric and boolean property values are written as strings: the server
+  /// stores properties as a string map.
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      if (properties != null) 'properties': properties,
-      if (timestamp != null) 'timestamp': timestamp!.toIso8601String(),
+      'event_name': name,
+      if (properties != null) 'properties': _stringProperties(properties!),
     };
+  }
+
+  static Map<String, dynamic>? _readProperties(Object? raw) {
+    if (raw == null) return null;
+    if (raw is! Map) {
+      throw const FormatException('TrackedEvent properties must be an object.');
+    }
+    return raw.map((key, value) => MapEntry(key.toString(), value));
+  }
+
+  static Map<String, String> _stringProperties(
+    Map<String, dynamic> properties,
+  ) {
+    final encoded = <String, String>{};
+    for (final entry in properties.entries) {
+      final value = entry.value;
+      if (value is String) {
+        encoded[entry.key] = value;
+      } else if (value is num || value is bool) {
+        encoded[entry.key] = '$value';
+      } else {
+        throw FormatException(
+          'Event property "${entry.key}" must be a string, number, or boolean.',
+        );
+      }
+    }
+    return encoded;
   }
 
   @override

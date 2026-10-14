@@ -9,13 +9,23 @@ export 'src/client/feedbackkit_config.dart';
 export 'src/api/comments_api.dart' show CreateCommentRequest;
 export 'src/api/feedback_api.dart'
     show CreateFeedbackRequest, ListFeedbackOptions;
+export 'src/api/metrics_api.dart'
+    show
+        MetricBreakdownOptions,
+        MetricEventsOptions,
+        MetricSummaryOptions,
+        MetricTimeseriesOptions;
 export 'src/api/users_api.dart' show RegisterUserRequest;
 
 // Models
 export 'src/models/comment.dart';
 export 'src/models/feedback.dart' show FeedbackItem;
 export 'src/models/feedback_category.dart';
+export 'src/models/feedback_list_style.dart';
+export 'src/models/feedback_sort_option.dart';
 export 'src/models/feedback_status.dart';
+export 'src/models/metrics.dart';
+export 'src/models/predefined_event_names.dart';
 export 'src/models/sdk_user.dart';
 export 'src/models/tracked_event.dart';
 export 'src/models/unknown_enum_value_exception.dart';
@@ -28,7 +38,9 @@ export 'src/errors/feedbackkit_error.dart';
 export 'src/i18n/feedbackkit_localizations.dart';
 
 // State Management
+export 'src/state/feedback_list_controller.dart';
 export 'src/state/feedbackkit_provider.dart';
+export 'src/storage/feedbackkit_storage.dart';
 export 'src/state/notifiers/feedback_list_notifier.dart';
 export 'src/state/notifiers/vote_notifier.dart';
 
@@ -40,6 +52,7 @@ export 'src/widgets/category_badge.dart';
 export 'src/widgets/feedback_card.dart';
 export 'src/widgets/feedback_detail_view.dart';
 export 'src/widgets/feedback_list.dart';
+export 'src/widgets/showcase/feedback_sort_filter_button.dart';
 export 'src/widgets/status_badge.dart';
 export 'src/widgets/submit_feedback_view.dart';
 export 'src/widgets/vote_button.dart';

@@ -6,6 +6,8 @@ import '../models/feedback.dart' show FeedbackItem;
 import '../models/feedback_category.dart';
 import '../state/feedbackkit_provider.dart';
 import '../theme/feedbackkit_theme.dart';
+import 'feedbackkit_direction.dart';
+import 'feedbackkit_pressable.dart';
 
 /// A form for submitting new feedback.
 class SubmitFeedbackView extends StatefulWidget {
@@ -47,7 +49,8 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.initialCategory ?? FeedbackCategory.featureRequest;
+    _selectedCategory =
+        widget.initialCategory ?? FeedbackCategory.featureRequest;
     _emailController.addListener(_onEmailChanged);
   }
 
@@ -137,253 +140,288 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
         FeedbackKitProvider.maybeOf(context)?.theme ??
         const FeedbackKitTheme();
 
-    return Container(
-      color: theme.backgroundColor,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.spacing * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            Text(
-              FeedbackKitLocalizations.t('feedback.submit.title'),
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: theme.spacing * 3),
-
-            // Category selector
-            Text(
-              FeedbackKitLocalizations.t('feedback.form.category'),
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: theme.spacing),
-            _buildCategorySelector(theme),
-            SizedBox(height: theme.spacing * 2),
-
-            // Title input
-            Text(
-              FeedbackKitLocalizations.t('feedback.form.title'),
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: theme.spacing),
-            _buildTextField(
-              theme,
-              controller: _titleController,
-              placeholder: FeedbackKitLocalizations.t('feedback.form.title.placeholder'),
-              maxLines: 1,
-            ),
-            SizedBox(height: theme.spacing * 2),
-
-            // Description input
-            Text(
-              FeedbackKitLocalizations.t('feedback.form.description'),
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: theme.spacing),
-            _buildTextField(
-              theme,
-              controller: _descriptionController,
-              placeholder: FeedbackKitLocalizations.t('feedback.form.description.placeholder'),
-              maxLines: 5,
-            ),
-            SizedBox(height: theme.spacing * 2),
-
-            // Email input (optional)
-            Text(
-              FeedbackKitLocalizations.t('feedback.form.email'),
-              style: TextStyle(
-                color: theme.textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: theme.spacing / 2),
-            Text(
-              FeedbackKitLocalizations.t('feedback.form.email.description'),
-              style: TextStyle(
-                color: theme.secondaryTextColor,
-                fontSize: 12,
-              ),
-            ),
-            SizedBox(height: theme.spacing),
-            _buildTextField(
-              theme,
-              controller: _emailController,
-              placeholder: 'your@email.com',
-              maxLines: 1,
-            ),
-
-            // Mailing list opt-in (visible only when email is non-empty)
-            if (_emailController.text.trim().isNotEmpty) ...[
-              SizedBox(height: theme.spacing * 1.5),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _subscribeToMailingList = !_subscribeToMailingList;
-                  });
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: _subscribeToMailingList
-                            ? theme.primaryColor
-                            : theme.cardBackgroundColor,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: _subscribeToMailingList
-                              ? theme.primaryColor
-                              : theme.borderColor,
-                        ),
-                      ),
-                      child: _subscribeToMailingList
-                          ? const Center(
-                              child: Text(
-                                '\u2713',
-                                style: TextStyle(
-                                  color: Color(0xFFFFFFFF),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                    SizedBox(width: theme.spacing),
-                    Expanded(
-                      child: Text(
-                        FeedbackKitLocalizations.t('feedback.form.mailingList'),
-                        style: TextStyle(
-                          color: theme.textColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
+    return FeedbackKitDirection(
+      child: Container(
+        color: theme.backgroundColor,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(theme.spacing * 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Title
+              Text(
+                FeedbackKitLocalizations.t('feedback.submit.title'),
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
+              SizedBox(height: theme.spacing * 3),
 
-              // Email type sub-checkboxes (progressive disclosure)
-              if (_subscribeToMailingList) ...[
-                SizedBox(height: theme.spacing),
-                Padding(
-                  padding: EdgeInsets.only(left: 20.0 + theme.spacing),
-                  child: Column(
+              // Category selector
+              Text(
+                FeedbackKitLocalizations.t('feedback.form.category'),
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: theme.spacing),
+              _buildCategorySelector(theme),
+              SizedBox(height: theme.spacing * 2),
+
+              // Title input
+              Text(
+                FeedbackKitLocalizations.t('feedback.form.title'),
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: theme.spacing),
+              _buildTextField(
+                theme,
+                controller: _titleController,
+                placeholder: FeedbackKitLocalizations.t(
+                  'feedback.form.title.placeholder',
+                ),
+                maxLines: 1,
+              ),
+              SizedBox(height: theme.spacing * 2),
+
+              // Description input
+              Text(
+                FeedbackKitLocalizations.t('feedback.form.description'),
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: theme.spacing),
+              _buildTextField(
+                theme,
+                controller: _descriptionController,
+                placeholder: FeedbackKitLocalizations.t(
+                  'feedback.form.description.placeholder',
+                ),
+                maxLines: 5,
+              ),
+              SizedBox(height: theme.spacing * 2),
+
+              // Email input (optional)
+              Text(
+                FeedbackKitLocalizations.t('feedback.form.email'),
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: theme.spacing / 2),
+              Text(
+                FeedbackKitLocalizations.t('feedback.form.email.description'),
+                style: TextStyle(
+                  color: theme.secondaryTextColor,
+                  fontSize: 12,
+                ),
+              ),
+              SizedBox(height: theme.spacing),
+              _buildTextField(
+                theme,
+                controller: _emailController,
+                placeholder: 'your@email.com',
+                maxLines: 1,
+              ),
+
+              // Mailing list opt-in (visible only when email is non-empty)
+              if (_emailController.text.trim().isNotEmpty) ...[
+                SizedBox(height: theme.spacing * 1.5),
+                FeedbackKitPressable(
+                  onTap: () {
+                    setState(() {
+                      _subscribeToMailingList = !_subscribeToMailingList;
+                    });
+                  },
+                  label:
+                      FeedbackKitLocalizations.t('feedback.form.mailingList'),
+                  checked: _subscribeToMailingList,
+                  child: Row(
                     children: [
-                      _buildSubCheckbox(
-                        label: FeedbackKitLocalizations.t('feedback.form.mailingList.operational'),
-                        value: _operationalEmails,
-                        onChanged: (v) => setState(() => _operationalEmails = v),
-                        theme: theme,
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: _subscribeToMailingList
+                              ? theme.primaryColor
+                              : theme.cardBackgroundColor,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: _subscribeToMailingList
+                                ? theme.primaryColor
+                                : theme.borderColor,
+                          ),
+                        ),
+                        child: _subscribeToMailingList
+                            ? const Center(
+                                child: Text(
+                                  '\u2713',
+                                  style: TextStyle(
+                                    color: Color(0xFFFFFFFF),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              )
+                            : null,
                       ),
-                      SizedBox(height: theme.spacing * 0.5),
-                      _buildSubCheckbox(
-                        label: FeedbackKitLocalizations.t('feedback.form.mailingList.marketing'),
-                        value: _marketingEmails,
-                        onChanged: (v) => setState(() => _marketingEmails = v),
-                        theme: theme,
+                      SizedBox(width: theme.spacing),
+                      Expanded(
+                        child: Text(
+                          FeedbackKitLocalizations.t(
+                            'feedback.form.mailingList',
+                          ),
+                          style: TextStyle(
+                            color: theme.textColor,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ],
-            SizedBox(height: theme.spacing * 3),
 
-            // Error message
-            if (_error != null) ...[
-              Container(
-                padding: EdgeInsets.all(theme.spacing),
-                decoration: BoxDecoration(
-                  color: theme.errorColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(theme.borderRadius / 2),
-                  border: Border.all(color: theme.errorColor.withOpacity(0.3)),
-                ),
-                child: Text(
-                  _error!,
-                  style: TextStyle(
-                    color: theme.errorColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              SizedBox(height: theme.spacing * 2),
-            ],
-
-            // Buttons
-            Row(
-              children: [
-                if (widget.onCancel != null) ...[
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: widget.onCancel,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: theme.spacing * 1.5),
-                        decoration: BoxDecoration(
-                          color: theme.cardBackgroundColor,
-                          borderRadius: BorderRadius.circular(theme.borderRadius / 2),
-                          border: Border.all(color: theme.borderColor),
-                        ),
-                        child: Text(
-                          FeedbackKitLocalizations.t('button.cancel'),
-                          style: TextStyle(
-                            color: theme.textColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                // Email type sub-checkboxes (progressive disclosure)
+                if (_subscribeToMailingList) ...[
+                  SizedBox(height: theme.spacing),
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.only(start: 20.0 + theme.spacing),
+                    child: Column(
+                      children: [
+                        _buildSubCheckbox(
+                          label: FeedbackKitLocalizations.t(
+                            'feedback.form.mailingList.operational',
                           ),
-                          textAlign: TextAlign.center,
+                          value: _operationalEmails,
+                          onChanged: (v) =>
+                              setState(() => _operationalEmails = v),
+                          theme: theme,
                         ),
-                      ),
+                        SizedBox(height: theme.spacing * 0.5),
+                        _buildSubCheckbox(
+                          label: FeedbackKitLocalizations.t(
+                            'feedback.form.mailingList.marketing',
+                          ),
+                          value: _marketingEmails,
+                          onChanged: (v) =>
+                              setState(() => _marketingEmails = v),
+                          theme: theme,
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(width: theme.spacing * 2),
                 ],
-                Expanded(
-                  child: GestureDetector(
-                    onTap: _isSubmitting ? null : _submit,
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 150),
-                      opacity: _isSubmitting ? 0.5 : 1.0,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: theme.spacing * 1.5),
-                        decoration: BoxDecoration(
-                          color: theme.primaryColor,
-                          borderRadius: BorderRadius.circular(theme.borderRadius / 2),
-                        ),
-                        child: Text(
-                          _isSubmitting ? FeedbackKitLocalizations.t('feedback.submit.submitting') : FeedbackKitLocalizations.t('feedback.submit.button'),
-                          style: const TextStyle(
-                            color: Color(0xFFFFFFFF),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+              ],
+              SizedBox(height: theme.spacing * 3),
+
+              // Error message
+              if (_error != null) ...[
+                Container(
+                  padding: EdgeInsets.all(theme.spacing),
+                  decoration: BoxDecoration(
+                    color: theme.errorColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(theme.borderRadius / 2),
+                    border:
+                        Border.all(color: theme.errorColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(
+                      color: theme.errorColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                SizedBox(height: theme.spacing * 2),
+              ],
+
+              // Buttons
+              Row(
+                children: [
+                  if (widget.onCancel != null) ...[
+                    Expanded(
+                      child: FeedbackKitPressable(
+                        onTap: widget.onCancel,
+                        label: FeedbackKitLocalizations.t('button.cancel'),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: theme.spacing * 1.5,
                           ),
-                          textAlign: TextAlign.center,
+                          decoration: BoxDecoration(
+                            color: theme.cardBackgroundColor,
+                            borderRadius:
+                                BorderRadius.circular(theme.borderRadius / 2),
+                            border: Border.all(color: theme.borderColor),
+                          ),
+                          child: Text(
+                            FeedbackKitLocalizations.t('button.cancel'),
+                            style: TextStyle(
+                              color: theme.textColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: theme.spacing * 2),
+                  ],
+                  Expanded(
+                    child: FeedbackKitPressable(
+                      onTap: _isSubmitting ? null : _submit,
+                      label: FeedbackKitLocalizations.t(
+                        _isSubmitting
+                            ? 'feedback.submit.submitting'
+                            : 'feedback.submit.button',
+                      ),
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 150),
+                        opacity: _isSubmitting ? 0.5 : 1.0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: theme.spacing * 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.primaryColor,
+                            borderRadius:
+                                BorderRadius.circular(theme.borderRadius / 2),
+                          ),
+                          child: Text(
+                            FeedbackKitLocalizations.t(
+                              _isSubmitting
+                                  ? 'feedback.submit.submitting'
+                                  : 'feedback.submit.button',
+                            ),
+                            style: const TextStyle(
+                              color: Color(0xFFFFFFFF),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -395,8 +433,10 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
     required ValueChanged<bool> onChanged,
     required FeedbackKitTheme theme,
   }) {
-    return GestureDetector(
+    return FeedbackKitPressable(
       onTap: () => onChanged(!value),
+      label: label,
+      checked: value,
       child: Row(
         children: [
           Container(
@@ -445,22 +485,24 @@ class _SubmitFeedbackViewState extends State<SubmitFeedbackView> {
         final isSelected = category == _selectedCategory;
         final color = theme.categoryColors.forCategory(category);
 
-        return GestureDetector(
+        return FeedbackKitPressable(
           onTap: () {
             setState(() {
               _selectedCategory = category;
             });
           },
+          label: category.displayName,
+          selected: isSelected,
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: theme.spacing * 1.5,
               vertical: theme.spacing,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? color : color.withOpacity(0.1),
+              color: isSelected ? color : color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(theme.borderRadius / 2),
               border: Border.all(
-                color: isSelected ? color : color.withOpacity(0.3),
+                color: isSelected ? color : color.withValues(alpha: 0.3),
               ),
             ),
             child: Text(

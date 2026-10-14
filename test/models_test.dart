@@ -40,7 +40,7 @@ void main() {
   group('FeedbackCategory', () {
     test('fromJson converts snake_case correctly', () {
       expect(
-          FeedbackCategory.fromJson('feature_request'), FeedbackCategory.featureRequest);
+          FeedbackCategory.fromJson('feature_request'), FeedbackCategory.featureRequest,);
       expect(FeedbackCategory.fromJson('bug_report'), FeedbackCategory.bugReport);
       expect(FeedbackCategory.fromJson('improvement'), FeedbackCategory.improvement);
       expect(FeedbackCategory.fromJson('other'), FeedbackCategory.other);

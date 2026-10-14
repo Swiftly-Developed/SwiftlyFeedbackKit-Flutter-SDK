@@ -1,9 +1,12 @@
 import 'package:flutter/widgets.dart';
 
+import '../i18n/feedbackkit_localizations.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/vote_response.dart';
 import '../state/feedbackkit_provider.dart';
 import '../theme/feedbackkit_theme.dart';
+import 'feedbackkit_direction.dart';
+import 'feedbackkit_pressable.dart';
 
 /// Size variants for the vote button.
 enum VoteButtonSize {
@@ -63,7 +66,10 @@ class _VoteButtonState extends State<VoteButton> {
     }
   }
 
-  bool get _canVote => widget.feedback.status.canVote && !_isVoting;
+  bool get _canVote {
+    final ready = FeedbackKitProvider.maybeOf(context)?.isInitialized ?? true;
+    return widget.feedback.status.canVote && !_isVoting && ready;
+  }
 
   Future<void> _handleTap() async {
     if (!_canVote) return;
@@ -81,7 +87,8 @@ class _VoteButtonState extends State<VoteButton> {
     setState(() {
       if (_localHasVoted) {
         _localHasVoted = false;
-        _localVoteCount = (_localVoteCount - 1).clamp(0, double.maxFinite.toInt());
+        _localVoteCount =
+            (_localVoteCount - 1).clamp(0, double.maxFinite.toInt());
       } else {
         _localHasVoted = true;
         _localVoteCount++;
@@ -151,59 +158,66 @@ class _VoteButtonState extends State<VoteButton> {
         const FeedbackKitTheme();
 
     final isDisabled = !_canVote;
+    final action = FeedbackKitLocalizations.t(
+      _localHasVoted ? 'button.voted' : 'button.vote',
+    );
+    final label = widget.showCount ? '$action, $_localVoteCount' : action;
 
-    return GestureDetector(
-      onTap: isDisabled ? null : _handleTap,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 150),
-        opacity: isDisabled ? 0.5 : 1.0,
-        child: Container(
-          padding: _padding,
-          decoration: BoxDecoration(
-            color: _localHasVoted
-                ? theme.primaryColor
-                : theme.primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(theme.borderRadius / 2),
-            border: Border.all(
+    return FeedbackKitDirection(
+      child: FeedbackKitPressable(
+        onTap: isDisabled ? null : _handleTap,
+        label: label,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 150),
+          opacity: isDisabled ? 0.5 : 1.0,
+          child: Container(
+            padding: _padding,
+            decoration: BoxDecoration(
               color: _localHasVoted
                   ? theme.primaryColor
-                  : theme.primaryColor.withOpacity(0.3),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '\u25B2', // Up arrow
-                style: TextStyle(
-                  color: _localHasVoted
-                      ? const Color(0xFFFFFFFF)
-                      : theme.primaryColor,
-                  fontSize: _fontSize,
-                ),
+                  : theme.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(theme.borderRadius / 2),
+              border: Border.all(
+                color: _localHasVoted
+                    ? theme.primaryColor
+                    : theme.primaryColor.withValues(alpha: 0.3),
               ),
-              if (widget.showCount) ...[
-                SizedBox(width: theme.spacing / 2),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  '$_localVoteCount',
+                  '\u25B2', // Up arrow
                   style: TextStyle(
                     color: _localHasVoted
                         ? const Color(0xFFFFFFFF)
                         : theme.primaryColor,
                     fontSize: _fontSize,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (widget.showCount) ...[
+                  SizedBox(width: theme.spacing / 2),
+                  Text(
+                    '$_localVoteCount',
+                    style: TextStyle(
+                      color: _localHasVoted
+                          ? const Color(0xFFFFFFFF)
+                          : theme.primaryColor,
+                      fontSize: _fontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                if (_isVoting) ...[
+                  SizedBox(width: theme.spacing / 2),
+                  SizedBox(
+                    width: _fontSize,
+                    height: _fontSize,
+                    child: const _LoadingIndicator(),
+                  ),
+                ],
               ],
-              if (_isVoting) ...[
-                SizedBox(width: theme.spacing / 2),
-                SizedBox(
-                  width: _fontSize,
-                  height: _fontSize,
-                  child: const _LoadingIndicator(),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),

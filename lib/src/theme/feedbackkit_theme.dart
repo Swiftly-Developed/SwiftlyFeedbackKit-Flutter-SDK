@@ -127,13 +127,13 @@ class CategoryColors {
   }
 
   @override
-  bool operator ==(Object other_) {
-    if (identical(this, other_)) return true;
-    return other_ is CategoryColors &&
-        other_.featureRequest == featureRequest &&
-        other_.bugReport == bugReport &&
-        other_.improvement == improvement &&
-        other_.other == other;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CategoryColors &&
+        other.featureRequest == featureRequest &&
+        other.bugReport == bugReport &&
+        other.improvement == improvement &&
+        other.other == this.other;
   }
 
   @override

@@ -38,11 +38,11 @@ class CreateFeedbackRequest {
       'title': title,
       'description': description,
       'category': category.toJson(),
-      if (email != null) 'email': email,
+      if (email != null) 'user_email': email,
       if (subscribeToMailingList != null)
-        'subscribeToMailingList': subscribeToMailingList,
+        'subscribe_to_mailing_list': subscribeToMailingList,
       if (mailingListEmailTypes != null)
-        'mailingListEmailTypes': mailingListEmailTypes,
+        'mailing_list_email_types': mailingListEmailTypes,
     };
   }
 }
@@ -67,6 +67,42 @@ class ListFeedbackOptions {
     this.page,
     this.perPage,
   });
+}
+
+List<FeedbackItem> _legacyFeedbackRows(dynamic data) {
+  return decodeFeedbackListTolerantly(data);
+}
+
+int? _jsonInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return null;
+}
+
+class _FeedbackPage {
+  final List<FeedbackItem> items;
+  final int page;
+  final int perPage;
+  final int totalPages;
+  final bool legacy;
+
+  const _FeedbackPage({
+    required this.items,
+    required this.page,
+    required this.perPage,
+    required this.totalPages,
+    required this.legacy,
+  });
+
+  factory _FeedbackPage.legacy(List<FeedbackItem> items) {
+    return _FeedbackPage(
+      items: items,
+      page: 1,
+      perPage: items.length,
+      totalPages: 1,
+      legacy: true,
+    );
+  }
 }
 
 /// Decodes a JSON array of feedback rows with the tolerant element-drop
@@ -97,10 +133,44 @@ class FeedbackApi {
 
   FeedbackApi(this._http);
 
-  /// Lists all feedback for the project.
+  /// Lists feedback for the project.
+  ///
+  /// When [ListFeedbackOptions.page] is omitted, every page is requested and
+  /// concatenated. A JSON array is the previous server and is already complete.
   Future<List<FeedbackItem>> list([ListFeedbackOptions? options]) async {
-    final params = <String, String?>{};
+    final first = await _page(options, page: options?.page, perPage: options?.perPage);
+    if (first.legacy || options?.page != null) {
+      return first.items;
+    }
+    if (first.perPage < 1 || first.items.isEmpty || first.page >= first.totalPages) {
+      return first.items;
+    }
+    final items = [...first.items];
+    var next = first.page + 1;
+    var size = first.perPage;
+    var totalPages = first.totalPages;
+    while (next <= totalPages && next <= 100) {
+      final more = await _page(options, page: next, perPage: size);
+      if (more.legacy || more.items.isEmpty || more.perPage < 1) {
+        break;
+      }
+      items.addAll(more.items);
+      if (more.page >= more.totalPages) {
+        break;
+      }
+      next = more.page + 1;
+      size = more.perPage;
+      totalPages = more.totalPages;
+    }
+    return items;
+  }
 
+  Future<_FeedbackPage> _page(
+    ListFeedbackOptions? options, {
+    int? page,
+    int? perPage,
+  }) {
+    final params = <String, String?>{};
     if (options != null) {
       if (options.status != null) {
         params['status'] = options.status!.toJson();
@@ -108,22 +178,37 @@ class FeedbackApi {
       if (options.category != null) {
         params['category'] = options.category!.toJson();
       }
-      if (options.page != null) {
-        params['page'] = options.page.toString();
-      }
-      if (options.perPage != null) {
-        params['per_page'] = options.perPage.toString();
-      }
     }
-
-    return _http.get<List<FeedbackItem>>(
+    params['paged'] = '1';
+    if (page != null) {
+      params['page'] = page.toString();
+    }
+    if (perPage != null) {
+      params['per_page'] = perPage.toString();
+    }
+    return _http.get<_FeedbackPage>(
       '/feedbacks',
-      params: params.isEmpty ? null : params,
+      params: params,
       decoder: (data) {
         if (data is List) {
-          return decodeFeedbackListTolerantly(data);
+          return _FeedbackPage.legacy(_legacyFeedbackRows(data));
         }
-        return <FeedbackItem>[];
+        if (data is Map) {
+          final rows = data['items'];
+          final items = rows is List
+              ? decodeFeedbackListTolerantly(rows)
+              : <FeedbackItem>[];
+          final meta = data['meta'];
+          final metaMap = meta is Map ? meta : const <String, dynamic>{};
+          return _FeedbackPage(
+            items: items,
+            page: _jsonInt(metaMap['page']) ?? 1,
+            perPage: _jsonInt(metaMap['per_page']) ?? items.length,
+            totalPages: _jsonInt(metaMap['total_pages']) ?? 1,
+            legacy: false,
+          );
+        }
+        return _FeedbackPage.legacy(const <FeedbackItem>[]);
       },
     );
   }
@@ -139,9 +224,9 @@ class FeedbackApi {
   /// Creates a new feedback item.
   Future<FeedbackItem> create(CreateFeedbackRequest request) async {
     final body = request.toJson();
-    // Include userId from the HTTP client if available
-    if (_http.userId != null) {
-      body['userId'] = _http.userId;
+    final userId = _http.userId?.trim();
+    if (userId != null && userId.isNotEmpty) {
+      body['user_id'] = userId;
     }
     return _http.post<FeedbackItem>(
       '/feedbacks',

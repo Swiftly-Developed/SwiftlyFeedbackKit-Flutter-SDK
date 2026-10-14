@@ -13,10 +13,31 @@ class FeedbackKitConfig {
   final int timeout;
 
   /// Default production base URL.
-  static const String defaultBaseUrl = 'https://api.prod.getfeedbackkit.com/api/v1';
+  static const String defaultBaseUrl =
+      'https://api.prod.getfeedbackkit.com/api/v1';
 
   /// Default request timeout in milliseconds (30 seconds).
   static const int defaultTimeout = 30000;
+
+  /// Rejects a base URL that would send the API key in cleartext.
+  ///
+  /// HTTPS is required. HTTP is accepted only for a loopback host so a local
+  /// server can be used during development.
+  static void assertSecureBaseUrl(String baseUrl) {
+    final uri = Uri.tryParse(baseUrl);
+    final host = uri?.host.toLowerCase();
+    final loopback =
+        host == 'localhost' || host == '127.0.0.1' || host == '::1';
+    if (uri != null &&
+        uri.hasScheme &&
+        (uri.scheme == 'https' || (uri.scheme == 'http' && loopback))) {
+      return;
+    }
+    throw ArgumentError(
+      'FeedbackKit only sends the API key over HTTPS. '
+      '$baseUrl is not allowed. Loopback HTTP is allowed for local development.',
+    );
+  }
 
   const FeedbackKitConfig({
     required this.apiKey,

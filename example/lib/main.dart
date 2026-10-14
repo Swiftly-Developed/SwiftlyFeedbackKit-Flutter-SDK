@@ -11,11 +11,14 @@ class FeedbackKitExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FeedbackKitProvider(
-      // Replace with your API key from feedbackkit.app
+      // Placeholder. Replace with your project key. Do not commit a real key.
+      // pub.dev 1.0.1's example shipped one; rotate any key copied from there.
       apiKey: 'your-api-key-here',
-      // Use local server for development
+      // Loopback HTTP is allowed. Any other cleartext base URL is rejected.
       baseUrl: 'http://localhost:8080/api/v1',
-      // Optional: Set a user ID for the session
+      // Optional. Omit this and the SDK creates a persisted local_ id.
+      // VoteButton does not send notifyStatusChange or an email. See
+      // docs/getting-started.md for votes.vote with those arguments.
       userId: 'example-user-123',
       // Optional: Customize the theme
       theme: const FeedbackKitTheme(
@@ -42,19 +45,37 @@ class FeedbackHomePage extends StatefulWidget {
 
 class _FeedbackHomePageState extends State<FeedbackHomePage> {
   int _currentIndex = 0;
+  FeedbackListStyle _listStyle = FeedbackListStyle.showcase;
 
   @override
   Widget build(BuildContext context) {
+    final isShowcase = _listStyle == FeedbackListStyle.showcase;
     return Scaffold(
       appBar: AppBar(
         title: const Text('FeedbackKit Example'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          if (_currentIndex == 0)
+            IconButton(
+              tooltip: isShowcase ? 'Use Classic list' : 'Use Showcase list',
+              icon: Icon(
+                isShowcase
+                    ? Icons.view_agenda_outlined
+                    : Icons.dashboard_outlined,
+              ),
+              onPressed: () => setState(() {
+                _listStyle = isShowcase
+                    ? FeedbackListStyle.classic
+                    : FeedbackListStyle.showcase;
+              }),
+            ),
+        ],
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: const [
-          FeedbackListPage(),
-          SubmitFeedbackPage(),
+        children: [
+          FeedbackListPage(listStyle: _listStyle),
+          const SubmitFeedbackPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -80,11 +101,14 @@ class _FeedbackHomePageState extends State<FeedbackHomePage> {
 }
 
 class FeedbackListPage extends StatelessWidget {
-  const FeedbackListPage({super.key});
+  final FeedbackListStyle listStyle;
+
+  const FeedbackListPage({super.key, required this.listStyle});
 
   @override
   Widget build(BuildContext context) {
     return FeedbackList(
+      listStyle: listStyle,
       onFeedbackTap: (feedback) {
         Navigator.of(context).push(
           MaterialPageRoute(
