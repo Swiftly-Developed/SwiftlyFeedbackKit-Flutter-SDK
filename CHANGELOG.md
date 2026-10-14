@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-14
+
+### Changed
+
+- `FeedbackStatus.fromJson` and `FeedbackCategory.fromJson` now throw `UnknownEnumValueException` for a token this SDK does not know, instead of silently mapping it to `pending` / `other`. `FeedbackApi.list` drops only the affected rows and keeps the rest in order; a malformed row still throws.
+
+### Added
+
+- `UnknownEnumValueException`, exported from the package.
+- Cross-SDK parity tests against server-generated wire corpora, plus comment and status decoding suites.
+
+### Fixed
+
+- `Comment.feedbackId` is now `String?`: the server never sends `feedback_id` on comments, so it always decoded to `''`. Code that treats it as a non-null `String` needs a null check.
+- The team-member badge on comments now renders: `Comment.isTeamMember` reads the server's `is_admin` key first.
+
 ## [1.1.1] - 2026-04-24
 
 ### Changed
@@ -50,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Event tracking
 - Comprehensive error handling
 
+[1.2.0]: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK/releases/tag/1.2.0
 [1.1.1]: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK/releases/tag/1.1.1
 [1.1.0]: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK/releases/tag/1.1.0
 [1.0.1]: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK/releases/tag/1.0.1
