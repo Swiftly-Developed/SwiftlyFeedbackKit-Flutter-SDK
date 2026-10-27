@@ -282,9 +282,19 @@ Future<void> pumpWithServer(
   );
 }
 
+/// The phone surface the golden images were recorded at.
+const Size goldenPhoneSize = Size(412, 915);
+
 /// Sets the test surface to a phone in logical pixels.
-void usePhoneSurface(WidgetTester tester, {Size size = const Size(412, 915)}) {
-  tester.view.physicalSize = size * 2;
+///
+/// The default is [goldenPhoneSize] at a device pixel ratio of 2, with zero
+/// padding and insets, so a golden does not follow the host's screen.
+void usePhoneSurface(WidgetTester tester, {Size size = goldenPhoneSize}) {
   tester.view.devicePixelRatio = 2;
+  tester.view.physicalSize = size * tester.view.devicePixelRatio;
+  tester.view.padding = FakeViewPadding.zero;
+  tester.view.viewPadding = FakeViewPadding.zero;
+  tester.view.viewInsets = FakeViewPadding.zero;
+  tester.view.systemGestureInsets = FakeViewPadding.zero;
   addTearDown(tester.view.reset);
 }

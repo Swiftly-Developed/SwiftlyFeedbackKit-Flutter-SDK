@@ -5,9 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Golden tests render with real fonts so the images can be reviewed: Roboto
-/// and Material Icons from the Flutter SDK's cache, and Noto Sans Arabic
-/// (OFL, see fonts/NotoSansArabic-LICENSE.txt) from this directory.
+/// Golden tests render with the font files in [fonts/], not with whatever the
+/// host or the Flutter SDK cache happens to have installed.
+///
+/// Roboto and Material Icons are the Flutter 3.47.7 SDK copies (Apache-2.0,
+/// see the license files beside them). Noto Sans Arabic is OFL
+/// (fonts/NotoSansArabic-LICENSE.txt). CI pins that same Flutter version, and
+/// the phone surface is fixed in the golden test, so a missing font fails the
+/// run instead of painting the Ahem fallback and diffing every image.
 ///
 /// Pixels still differ slightly between machines, so a comparison passes
 /// within [_tolerance] of the pixels.
@@ -17,34 +22,46 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   final current = goldenFileComparator;
   if (current is LocalFileComparator) {
     goldenFileComparator = _TolerantComparator(
-        current.basedir.resolve('showcase_golden_test.dart'),);
+      current.basedir.resolve('showcase_golden_test.dart'),
+    );
   }
   await testMain();
 }
 
 const double _tolerance = 0.005;
 
+String _fontsDirectory() {
+  final candidates = <String>[
+    '${File.fromUri(Platform.script).parent.path}/fonts',
+    '${Directory.current.path}/test/goldens/fonts',
+  ];
+  for (final path in candidates) {
+    if (File('$path/Roboto-Regular.ttf').existsSync()) return path;
+  }
+  throw StateError(
+    'Golden fonts are missing. Looked for Roboto-Regular.ttf in: '
+    '${candidates.join(', ')}.',
+  );
+}
+
 Future<void> _loadFonts() async {
-  final flutterRoot = Platform.environment['FLUTTER_ROOT'];
-  if (flutterRoot == null) return;
-  final material = '$flutterRoot/bin/cache/artifacts/material_fonts';
-  await _family('Roboto', [
-    for (final weight in ['Light', 'Regular', 'Medium', 'Bold'])
-      '$material/Roboto-$weight.ttf',
-  ]);
+  final fonts = _fontsDirectory();
+  final roboto = <String>[
+    '$fonts/Roboto-Light.ttf',
+    '$fonts/Roboto-Regular.ttf',
+    '$fonts/Roboto-Medium.ttf',
+    '$fonts/Roboto-Bold.ttf',
+  ];
+  await _family('Roboto', roboto);
   // Stand-ins for the Apple system fonts a CupertinoApp asks for.
   for (final family in ['CupertinoSystemText', 'CupertinoSystemDisplay']) {
     await _family(family, [
-      '$material/Roboto-Regular.ttf',
-      '$material/Roboto-Medium.ttf',
-      '$material/Roboto-Bold.ttf',
+      '$fonts/Roboto-Regular.ttf',
+      '$fonts/Roboto-Medium.ttf',
+      '$fonts/Roboto-Bold.ttf',
     ]);
   }
-  await _family('MaterialIcons', ['$material/MaterialIcons-Regular.otf']);
-  final here = File.fromUri(Platform.script).parent.path;
-  final fonts = Directory('$here/fonts').existsSync()
-      ? '$here/fonts'
-      : '${Directory.current.path}/test/goldens/fonts';
+  await _family('MaterialIcons', ['$fonts/MaterialIcons-Regular.otf']);
   await _family('Noto Sans Arabic', [
     '$fonts/NotoSansArabic-Regular.ttf',
     '$fonts/NotoSansArabic-Bold.ttf',
@@ -53,14 +70,15 @@ Future<void> _loadFonts() async {
 
 Future<void> _family(String family, List<String> paths) async {
   final loader = FontLoader(family);
-  var any = false;
   for (final path in paths) {
     final file = File(path);
-    if (!file.existsSync()) continue;
-    any = true;
-    loader.addFont(file.readAsBytes().then((b) => ByteData.sublistView(b)));
+    if (!file.existsSync()) {
+      throw StateError('Golden font file is missing for $family: $path');
+    }
+    loader.addFont(
+        file.readAsBytes().then((bytes) => ByteData.sublistView(bytes)));
   }
-  if (any) await loader.load();
+  await loader.load();
 }
 
 class _TolerantComparator extends LocalFileComparator {

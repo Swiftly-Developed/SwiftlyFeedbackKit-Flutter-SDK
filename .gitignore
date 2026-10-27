@@ -54,6 +54,9 @@ app.*.map.json
 # Coverage
 coverage/
 
+# Golden failures from a local `flutter test` run.
+test/goldens/failures/
+
 # Example app build artifacts
 example/build/
 example/.dart_tool/

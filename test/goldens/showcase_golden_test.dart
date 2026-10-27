@@ -7,7 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/showcase_harness.dart';
 
-/// Regenerate with `flutter test --update-goldens test/goldens`.
+/// Phone surface every golden paints: 412×915 logical pixels at 2x, which is
+/// an 824×1830 image. CI pins Flutter 3.47.7, the version these pixels were
+/// checked against. Regenerate only on that version, after reviewing the
+/// diff, with `flutter test --update-goldens test/goldens`.
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -19,9 +22,11 @@ void main() {
   void testWidgets(String description, WidgetTesterCallback body) {
     flutter_test.testWidgets(description, (tester) async {
       debugDisableShadows = false;
+      tester.platformDispatcher.localesTestValue = const [Locale('en', 'US')];
       try {
         await body(tester);
       } finally {
+        tester.platformDispatcher.clearLocalesTestValue();
         debugDisableShadows = true;
       }
     });

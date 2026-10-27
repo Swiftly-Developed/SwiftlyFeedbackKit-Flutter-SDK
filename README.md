@@ -1,6 +1,6 @@
 # FeedbackKit Flutter SDK
 
-> **These samples match this checkout, package version 2.1.0.** [pub.dev](https://pub.dev/packages/feedbackkit_flutter) still serves **1.0.1** (9 February 2026). `flutter pub add feedbackkit_flutter` installs that release, and the snippets below do not compile against it. Walk through setup in [docs/getting-started.md](docs/getting-started.md). What 1.0.1 cannot do is listed under [Published 1.0.1](#published-101). Tags `1.1.x` and `1.2.0` on [SwiftlyFeedbackKit-Flutter-SDK](https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK) are not this API. Tag `2.1.0` is.
+> **These samples match this checkout, package version 2.2.0.** [pub.dev](https://pub.dev/packages/feedbackkit_flutter) still serves **1.0.1** (9 February 2026). `flutter pub add feedbackkit_flutter` installs that release, and the snippets below do not compile against it. Walk through setup in [docs/getting-started.md](docs/getting-started.md). What 1.0.1 cannot do is listed under [Published 1.0.1](#published-101). Tags `1.1.x` and `1.2.0` on [SwiftlyFeedbackKit-Flutter-SDK](https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK) are not this API. Tag `2.1.0` is.
 
 Flutter SDK for [FeedbackKit](https://feedbackkit.app) - A feedback collection platform for your apps. The provider takes `apiKey` and `child`, plus optional `userId`, `baseUrl`, `theme`, `locale`, and `translations`. It does not take a `FeedbackKitClient`.
 
@@ -14,7 +14,7 @@ Flutter SDK for [FeedbackKit](https://feedbackkit.app) - A feedback collection p
 
 ## Installation
 
-This checkout is `2.1.0`. It is not on pub.dev. Depend on this directory so the snippets compile:
+This checkout is `2.2.0`. It is not on pub.dev. Depend on this directory so the snippets compile:
 
 ```yaml
 dependencies:
@@ -28,14 +28,14 @@ Then run:
 flutter pub get
 ```
 
-`flutter pub add feedbackkit_flutter` installs pub.dev **1.0.1**. A `^2.1.0` constraint does not resolve there, because 2.1.0 is not published. A git dependency on tag `1.1.x` or `1.2.0` is not this API. Without this checkout, depend on the mirror's `2.1.0` tag:
+`flutter pub add feedbackkit_flutter` installs pub.dev **1.0.1**. A `^2.2.0` constraint does not resolve there, because 2.2.0 is not published. A git dependency on tag `1.1.x` or `1.2.0` is not this API. Without this checkout, depend on the mirror's `2.2.0` tag:
 
 ```yaml
 dependencies:
   feedbackkit_flutter:
     git:
       url: https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK.git
-      ref: 2.1.0
+      ref: 2.2.0
 ```
 
 The example app already uses `path: ../`.
@@ -532,7 +532,7 @@ Make sure to replace `'your-api-key-here'` with your project API key from [feedb
 
 pub.dev 1.0.1 (9 February 2026) is the only published version. It does not match this README.
 
-| This checkout (2.1.0) | pub.dev 1.0.1 |
+| This checkout (2.2.0) | pub.dev 1.0.1 |
 | --- | --- |
 | `locale`, `translations` | Absent |
 | Mailing-list fields on submit and vote | Absent |
@@ -548,7 +548,7 @@ pub.dev 1.0.1 (9 February 2026) is the only published version. It does not match
 | HTTPS required, loopback HTTP allowed | Any base URL is accepted |
 | Example API key is `your-api-key-here` | The example hardcodes a project API key |
 
-The public repository `SwiftlyFeedbackKit-Flutter-SDK` has tags `1.1.0`, `1.1.1`, `1.2.0` and `2.1.0`. `1.2.0` and `2.1.0` were tagged 14 October 2026. Tag `2.1.0` and `main` are this checkout. Tags `1.1.1` and `1.2.0` have `locale`, `translations`, and mailing-list fields, and they still have the 1.0.1 vote, comment, event, and register wire keys. They have no metrics API. 1.1.1's example still contains the project API key. Tag `1.2.0` adds `UnknownEnumValueException`, a nullable `Comment.feedbackId`, the `is_admin` read, and a placeholder example key. No tag is on pub.dev. This repository does not publish to pub.dev from a docs change.
+The public repository `SwiftlyFeedbackKit-Flutter-SDK` has tags `1.1.0`, `1.1.1`, `1.2.0`, `2.1.0` and `2.2.0`. `1.2.0` and `2.1.0` were tagged 14 October 2026, `2.2.0` on 27 October 2026. Tag `2.2.0` and `main` are this checkout. Tags `1.1.1` and `1.2.0` have `locale`, `translations`, and mailing-list fields, and they still have the 1.0.1 vote, comment, event, and register wire keys. They have no metrics API. 1.1.1's example still contains the project API key. Tag `1.2.0` adds `UnknownEnumValueException`, a nullable `Comment.feedbackId`, the `is_admin` read, and a placeholder example key. No tag is on pub.dev. This repository does not publish to pub.dev from a docs change.
 
 ## Privacy
 
