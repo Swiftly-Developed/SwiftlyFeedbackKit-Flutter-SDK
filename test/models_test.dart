@@ -165,7 +165,9 @@ void main() {
       final user = SDKUser.fromJson(json);
 
       expect(user.id, 'user-123');
+      // ignore: deprecated_member_use_from_same_package
       expect(user.email, 'test@example.com');
+      // ignore: deprecated_member_use_from_same_package
       expect(user.name, 'Test User');
     });
   });

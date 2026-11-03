@@ -264,20 +264,13 @@ void main() {
       ]);
     });
 
-    test('updatedAt is a REQUIRED field — a payload without it throws', () {
-      // Recorded, not corrected. `FeedbackItem.updatedAt` is non-nullable and `fromJson`
-      // casts `json['updatedAt'] as String` with no null guard, so a payload omitting both
-      // spellings throws rather than degrading. The server does send `updated_at` on every
-      // row (FluentKit touches the .update trigger on insert too), so this is latent rather
-      // than live — but `FeedbackResponseDTO.updatedAt` is `Date?`, and the day a path emits
-      // a row without it, every Flutter client dead-ends on the whole list.
+    test('a payload without updatedAt reads as its creation time', () {
+      // `FeedbackResponseDTO.updatedAt` is `Date?`. This used to throw and blank the list.
       final withoutUpdatedAt =
           Map<String, dynamic>.from(corpus[2] as Map<String, dynamic>)
             ..remove('updated_at');
-      expect(
-        () => FeedbackItem.fromJson(withoutUpdatedAt),
-        throwsA(isA<TypeError>()),
-      );
+      final item = FeedbackItem.fromJson(withoutUpdatedAt);
+      expect(item.updatedAt, item.createdAt);
       // The paired positive: with the key present it decodes fine.
       expect(
         FeedbackItem.fromJson(corpus[2] as Map<String, dynamic>).updatedAt,

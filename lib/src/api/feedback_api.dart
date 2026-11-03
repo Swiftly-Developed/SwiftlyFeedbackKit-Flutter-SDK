@@ -3,6 +3,7 @@ import '../models/feedback.dart' show FeedbackItem;
 import '../models/feedback_category.dart';
 import '../models/feedback_status.dart';
 import '../models/unknown_enum_value_exception.dart';
+import 'page_follow.dart';
 
 /// Request object for creating feedback.
 class CreateFeedbackRequest {
@@ -81,7 +82,7 @@ int? _jsonInt(Object? value) {
 
 class _FeedbackPage {
   final List<FeedbackItem> items;
-  final int page;
+  final int? page;
   final int perPage;
   final int totalPages;
   final bool legacy;
@@ -142,23 +143,38 @@ class FeedbackApi {
     if (first.legacy || options?.page != null) {
       return first.items;
     }
-    if (first.perPage < 1 || first.items.isEmpty || first.page >= first.totalPages) {
+    // A first response without meta.page answers the page the caller asked for: page 1.
+    final firstPage = first.page ?? 1;
+    if (first.perPage < 1 || first.items.isEmpty || firstPage >= first.totalPages) {
       return first.items;
     }
+    const path = '/feedbacks';
     final items = [...first.items];
-    var next = first.page + 1;
+    var next = firstPage + 1;
     var size = first.perPage;
     var totalPages = first.totalPages;
-    while (next <= totalPages && next <= 100) {
+    var followed = 0;
+    while (next <= totalPages) {
+      if (followed >= maxFollowedPages) {
+        warnPageFollowStopped(path, next, next - 1);
+        break;
+      }
       final more = await _page(options, page: next, perPage: size);
+      followed += 1;
       if (more.legacy || more.items.isEmpty || more.perPage < 1) {
         break;
       }
-      items.addAll(more.items);
-      if (more.page >= more.totalPages) {
+      // A proxy that ignores the query answers with a page already read. Its rows
+      // are not added, so no page is counted twice.
+      if (more.page != next) {
+        warnPageFollowStopped(path, next, more.page);
         break;
       }
-      next = more.page + 1;
+      items.addAll(more.items);
+      if (next >= more.totalPages) {
+        break;
+      }
+      next += 1;
       size = more.perPage;
       totalPages = more.totalPages;
     }
@@ -202,7 +218,7 @@ class FeedbackApi {
           final metaMap = meta is Map ? meta : const <String, dynamic>{};
           return _FeedbackPage(
             items: items,
-            page: _jsonInt(metaMap['page']) ?? 1,
+            page: _jsonInt(metaMap['page']),
             perPage: _jsonInt(metaMap['per_page']) ?? items.length,
             totalPages: _jsonInt(metaMap['total_pages']) ?? 1,
             legacy: false,

@@ -13,9 +13,15 @@ class FeedbackKitExampleApp extends StatelessWidget {
     return FeedbackKitProvider(
       // Placeholder. Replace with your project key. Do not commit a real key.
       // pub.dev 1.0.1's example shipped one; rotate any key copied from there.
-      apiKey: 'your-api-key-here',
+      apiKey: const String.fromEnvironment(
+        'FEEDBACKKIT_API_KEY',
+        defaultValue: 'your-api-key-here',
+      ),
       // Loopback HTTP is allowed. Any other cleartext base URL is rejected.
-      baseUrl: 'http://localhost:8080/api/v1',
+      baseUrl: const String.fromEnvironment(
+        'FEEDBACKKIT_BASE_URL',
+        defaultValue: 'http://localhost:8080/api/v1',
+      ),
       // Optional. Omit this and the SDK creates a persisted local_ id.
       // VoteButton does not send notifyStatusChange or an email. See
       // docs/getting-started.md for votes.vote with those arguments.

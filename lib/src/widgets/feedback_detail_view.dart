@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../api/comments_api.dart';
 import '../i18n/feedbackkit_localizations.dart';
 import '../models/comment.dart';
+import '../models/comment_author_label.dart';
 import '../models/feedback.dart' show FeedbackItem;
 import '../models/vote_response.dart';
 import '../state/feedbackkit_provider.dart';
@@ -357,8 +358,10 @@ class _FeedbackDetailViewState extends State<FeedbackDetailView> {
             Row(
               children: [
                 Text(
-                  comment.authorName ??
-                      FeedbackKitLocalizations.t('feedback.detail.anonymous'),
+                  commentAuthorLabel(
+                    comment,
+                    FeedbackKitLocalizations.t('feedback.detail.anonymous'),
+                  ),
                   style: TextStyle(
                     color: theme.textColor,
                     fontSize: 14,

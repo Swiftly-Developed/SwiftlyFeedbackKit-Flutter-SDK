@@ -1,6 +1,6 @@
 # FeedbackKit Flutter SDK
 
-> **These samples match this checkout, package version 2.2.0.** [pub.dev](https://pub.dev/packages/feedbackkit_flutter) still serves **1.0.1** (9 February 2026). `flutter pub add feedbackkit_flutter` installs that release, and the snippets below do not compile against it. Walk through setup in [docs/getting-started.md](docs/getting-started.md). What 1.0.1 cannot do is listed under [Published 1.0.1](#published-101). Tags `1.1.x` and `1.2.0` on [SwiftlyFeedbackKit-Flutter-SDK](https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK) are not this API. Tag `2.1.0` is.
+> **These samples match this checkout, package version 2.3.0.** [pub.dev](https://pub.dev/packages/feedbackkit_flutter) still serves **1.0.1** (9 February 2026). `flutter pub add feedbackkit_flutter` installs that release, and the snippets below do not compile against it. Walk through setup in [docs/getting-started.md](docs/getting-started.md). What 1.0.1 cannot do is listed under [Published 1.0.1](#published-101). Tags `1.1.x` and `1.2.0` on [SwiftlyFeedbackKit-Flutter-SDK](https://github.com/Swiftly-Developed/SwiftlyFeedbackKit-Flutter-SDK) are not this API. Tag `2.1.0` is.
 
 Flutter SDK for [FeedbackKit](https://feedbackkit.app) - A feedback collection platform for your apps. The provider takes `apiKey` and `child`, plus optional `userId`, `baseUrl`, `theme`, `locale`, and `translations`. It does not take a `FeedbackKitClient`.
 
@@ -14,7 +14,7 @@ Flutter SDK for [FeedbackKit](https://feedbackkit.app) - A feedback collection p
 
 ## Installation
 
-This checkout is `2.2.0`. It is not on pub.dev. Depend on this directory so the snippets compile:
+This checkout is `2.3.0`. It is not on pub.dev. Depend on this directory so the snippets compile:
 
 ```yaml
 dependencies:
@@ -28,7 +28,7 @@ Then run:
 flutter pub get
 ```
 
-`flutter pub add feedbackkit_flutter` installs pub.dev **1.0.1**. A `^2.2.0` constraint does not resolve there, because 2.2.0 is not published. A git dependency on tag `1.1.x` or `1.2.0` is not this API. Without this checkout, depend on the mirror's `2.2.0` tag:
+`flutter pub add feedbackkit_flutter` installs pub.dev **1.0.1**. A `^2.3.0` constraint does not resolve there, because 2.3.0 is not published. A git dependency on tag `1.1.x` or `1.2.0` is not this API. Without this checkout, depend on the mirror's `2.2.0` tag:
 
 ```yaml
 dependencies:
@@ -532,7 +532,7 @@ Make sure to replace `'your-api-key-here'` with your project API key from [feedb
 
 pub.dev 1.0.1 (9 February 2026) is the only published version. It does not match this README.
 
-| This checkout (2.2.0) | pub.dev 1.0.1 |
+| This checkout (2.3.0) | pub.dev 1.0.1 |
 | --- | --- |
 | `locale`, `translations` | Absent |
 | Mailing-list fields on submit and vote | Absent |

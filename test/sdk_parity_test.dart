@@ -201,9 +201,9 @@ void main() {
       // feedback_id is never read: the model has no field for it.
     });
 
-    test('SDKUser reads three phantom keys of four — RECORDED AS SHIPPED', () {
-      // ⚠️ RECORDED AS SHIPPED (F3). The server sends {id, user_id, mrr, first_seen_at,
-      // last_seen_at}; the model reads {id, email, name, created_at}. Only `id` binds.
+    test('SDKUser reads every key the server sends', () {
+      // Was ⚠️ RECORDED AS SHIPPED (F3): the model read {id, email, name, created_at}
+      // and only `id` bound.
       final corpus = loadCorpus('sdk-user-wire-corpus.json');
       final row = corpus[0] as Map<String, dynamic>;
       expect(
@@ -212,18 +212,11 @@ void main() {
       );
 
       final user = SDKUser.fromJson(row);
-      expect(user.id, isNotEmpty); // the one field that binds
-      expect(
-        user.email,
-        isNull,
-        reason: 'phantom: the server never sends email',
-      );
-      expect(user.name, isNull, reason: 'phantom: the server never sends name');
-      expect(
-        user.createdAt,
-        isNull,
-        reason: 'phantom: the server sends first_seen_at, not created_at',
-      );
+      expect(user.id, isNotEmpty);
+      expect(user.userId, isNotEmpty);
+      expect(user.mrr, isNotNull);
+      expect(user.firstSeenAt, isNotNull);
+      expect(user.lastSeenAt, isNotNull);
     });
 
     test('TrackedEvent decodes event_name from the server payload', () {

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-03
+
+**Check before you upgrade.** `SDKUser` equality now includes the new fields, so two users that used to compare equal can compare unequal. Nothing is removed or renamed.
+
+### Fixed
+
+- Listing feedback or comments can no longer send requests without end when a proxy or cache returns a stale or incomplete page. If a later page's number is missing or is not the page requested, the list stops and returns the rows it already has, and it never follows more than 100 further pages. When either happens, the SDK logs one warning with the path and the two page numbers.
+- Comments no longer all read "Anonymous" in the feedback detail view. A comment now shows its author's name if the server sends one, and otherwise the user ID. The team badge is unchanged.
+- One feedback row with a null or missing timestamp no longer fails the whole list. `updatedAt` then reads as `createdAt`, and `createdAt` as `updatedAt`. A row with neither still throws.
+
+### Added
+
+- `SDKUser.userId`, `mrr`, `firstSeenAt` and `lastSeenAt`, the fields `POST /users/register` returns.
+- `CommentsApi.delete(feedbackId, commentId)` deletes the current user's own comment. With no user id it throws `ValidationError` and sends nothing.
+
+### Changed
+
+- ⚠️ **Behaviour change: `SDKUser` `==` and `hashCode` include `userId`, `mrr`, `firstSeenAt` and `lastSeenAt`.** Two `SDKUser` values with the same `id` but a different revenue figure or last-seen time are no longer equal. If you keep users in a `Set`, as `Map` keys, or compare them to skip a rebuild, compare `id` instead when that is what you mean. `toString()` also prints the new fields.
+
+### Deprecated
+
+- `SDKUser.email`, `name` and `createdAt`. The server does not return them, so they are null on every response. Read `firstSeenAt` in place of `createdAt`.
+
 ## [2.2.0] - 2026-10-27
 
 All FeedbackKit SDKs (Swift, JS, React Native, Kotlin, Flutter) now share one version number. The Vapor SDK keeps its own versioning.

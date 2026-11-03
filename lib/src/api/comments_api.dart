@@ -1,5 +1,7 @@
+import '../errors/feedbackkit_error.dart';
 import '../http/http_client.dart';
 import '../models/comment.dart';
+import 'page_follow.dart';
 
 /// Request object for creating a comment.
 class CreateCommentRequest {
@@ -38,7 +40,7 @@ int? _commentJsonInt(Object? value) {
 
 class _CommentPage {
   final List<Comment> items;
-  final int page;
+  final int? page;
   final int perPage;
   final int totalPages;
   final bool legacy;
@@ -81,23 +83,38 @@ class CommentsApi {
     if (first.legacy || page != null) {
       return first.items;
     }
-    if (first.perPage < 1 || first.items.isEmpty || first.page >= first.totalPages) {
+    // A first response without meta.page answers the page the caller asked for: page 1.
+    final firstPage = first.page ?? 1;
+    if (first.perPage < 1 || first.items.isEmpty || firstPage >= first.totalPages) {
       return first.items;
     }
+    final path = '/feedbacks/$feedbackId/comments';
     final items = [...first.items];
-    var next = first.page + 1;
+    var next = firstPage + 1;
     var size = first.perPage;
     var totalPages = first.totalPages;
-    while (next <= totalPages && next <= 100) {
+    var followed = 0;
+    while (next <= totalPages) {
+      if (followed >= maxFollowedPages) {
+        warnPageFollowStopped(path, next, next - 1);
+        break;
+      }
       final more = await _page(feedbackId, page: next, perPage: size);
+      followed += 1;
       if (more.legacy || more.items.isEmpty || more.perPage < 1) {
         break;
       }
-      items.addAll(more.items);
-      if (more.page >= more.totalPages) {
+      // A proxy that ignores the query answers with a page already read. Its rows
+      // are not added, so no page is counted twice.
+      if (more.page != next) {
+        warnPageFollowStopped(path, next, more.page);
         break;
       }
-      next = more.page + 1;
+      items.addAll(more.items);
+      if (next >= more.totalPages) {
+        break;
+      }
+      next += 1;
       size = more.perPage;
       totalPages = more.totalPages;
     }
@@ -130,7 +147,7 @@ class CommentsApi {
           final metaMap = meta is Map ? meta : const <String, dynamic>{};
           return _CommentPage(
             items: items,
-            page: _commentJsonInt(metaMap['page']) ?? 1,
+            page: _commentJsonInt(metaMap['page']),
             perPage: _commentJsonInt(metaMap['per_page']) ?? items.length,
             totalPages: _commentJsonInt(metaMap['total_pages']) ?? 1,
             legacy: false,
@@ -153,6 +170,25 @@ class CommentsApi {
       '/feedbacks/$feedbackId/comments',
       body: body,
       decoder: (data) => Comment.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  /// Deletes the configured user's own comment.
+  ///
+  /// The server refuses another user's comment or a staff reply with
+  /// [ForbiddenError]. With no user id this throws [ValidationError] and sends
+  /// nothing, because a request with only the API key does not name who is
+  /// deleting.
+  Future<void> delete(String feedbackId, String commentId) async {
+    final userId = _http.userId?.trim();
+    if (userId == null || userId.isEmpty) {
+      throw const ValidationError(
+        message: 'User ID is required to delete a comment.',
+      );
+    }
+    await _http.delete<void>(
+      '/feedbacks/$feedbackId/comments/$commentId',
+      decoder: (_) {},
     );
   }
 }

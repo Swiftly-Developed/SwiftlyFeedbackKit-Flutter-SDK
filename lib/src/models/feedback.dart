@@ -34,9 +34,13 @@ class FeedbackItem {
   final String? userEmail;
 
   /// When this feedback was created.
+  ///
+  /// The server declares this optional. A row without it reads as [updatedAt].
   final DateTime createdAt;
 
   /// When this feedback was last updated.
+  ///
+  /// The server declares this optional. A row without it reads as [createdAt].
   final DateTime updatedAt;
 
   /// Whether this feedback is hidden over the free-tier limit (only visible to creator).
@@ -59,7 +63,16 @@ class FeedbackItem {
   });
 
   /// Creates a [FeedbackItem] from a JSON map.
+  ///
+  /// Each timestamp may be missing or JSON `null`, and then takes the other's
+  /// value. A row with neither is malformed and throws a [FormatException].
   factory FeedbackItem.fromJson(Map<String, dynamic> json) {
+    final created = _timestamp(json, 'created_at', 'createdAt');
+    final updated = _timestamp(json, 'updated_at', 'updatedAt');
+    final fallback = created ?? updated;
+    if (fallback == null) {
+      throw const FormatException('Feedback has neither created_at nor updated_at.');
+    }
     return FeedbackItem(
       id: json['id'] as String,
       title: json['title'] as String,
@@ -73,15 +86,20 @@ class FeedbackItem {
           json['comment_count'] as int? ?? json['commentCount'] as int? ?? 0,
       userId: json['user_id'] as String? ?? json['userId'] as String?,
       userEmail: json['user_email'] as String? ?? json['userEmail'] as String?,
-      createdAt: DateTime.parse(
-        json['created_at'] as String? ?? json['createdAt'] as String,
-      ),
-      updatedAt: DateTime.parse(
-        json['updated_at'] as String? ?? json['updatedAt'] as String,
-      ),
+      createdAt: created ?? fallback,
+      updatedAt: updated ?? fallback,
       isHiddenOverLimit: json['is_hidden_over_limit'] as bool? ??
           json['isHiddenOverLimit'] as bool?,
     );
+  }
+
+  static DateTime? _timestamp(
+    Map<String, dynamic> json,
+    String snakeKey,
+    String camelKey,
+  ) {
+    final value = json[snakeKey] as String? ?? json[camelKey] as String?;
+    return value == null ? null : DateTime.parse(value);
   }
 
   /// Converts this feedback to a JSON map.
